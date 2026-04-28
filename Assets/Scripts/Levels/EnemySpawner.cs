@@ -12,7 +12,12 @@ public class EnemySpawner : MonoBehaviour
     public Image level_selector;
     public GameObject button;
     public GameObject enemy;
-    public SpawnPoint[] SpawnPoints;    
+    public SpawnPoint[] SpawnPoints;
+
+    // adding level storage
+    private List<Level> levels;
+    private Level currentLevel;
+    private int currentWave = 1;    
 
     private Dictionary<string, Enemy> enemiesByType;
 
@@ -20,11 +25,22 @@ public class EnemySpawner : MonoBehaviour
     void Start()
     {
         enemiesByType = EnemyJsonLoader.LoadEnemies();
+        levels = LevelsJsonLoader.LoadLevels();
 
-        GameObject selector = Instantiate(button, level_selector.transform);
-        selector.transform.localPosition = new Vector3(0, 130);
-        selector.GetComponent<MenuSelectorController>().spawner = this;
-        selector.GetComponent<MenuSelectorController>().SetLevel("Start");
+        float yOffset = 130;
+
+        // dynamic buttons for each level
+        foreach (Level level in levels)
+        {
+            GameObject selector = Instantiate(button, level_selector.transform);
+
+            selector.transform.localPosition = new Vector3(0, yOffset);
+            yOffset -= 60;
+
+            MenuSelectorController ctrl = selector.GetComponent<MenuSelectorController>();
+            ctrl.spawner = this;
+            ctrl.SetLevel(level.name);
+        }
     }
 
     // Update is called once per frame
