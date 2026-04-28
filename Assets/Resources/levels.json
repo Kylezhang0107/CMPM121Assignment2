@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Easy",
+    "waves": 10,
+    "spawns": [
+      {
+        "enemy": "zombie",
+        "count": "5 wave +",
+        "hp": "base 5 wave * +",
+        "delay": "5",
+        "sequence": [1, 2, 3],
+        "location": "random"
+      },
+      {
+        "enemy": "skeleton",
+        "count": "wave 3 /",
+        "hp": "30 wave *",
+        "delay": "3",
+        "sequence": [2, 2],
+        "location": "random red"
+      }
+    ]
+  },
+  {
+    "name": "Medium",
+    "waves": 15,
+    "spawns": [
+      {
+        "enemy": "zombie",
+        "count": "8 wave +",
+        "hp": "base 7 wave * +",
+        "delay": "4",
+        "sequence": [2, 2, 2],
+        "location": "random"
+      },
+      {
+        "enemy": "warlock",
+        "count": "wave 5 / 1 wave 5 % - *",
+        "hp": "100 25 wave <=",
+        "delay": "6",
+        "sequence": [1],
+        "location": "random bone"
+      }
+    ]
+  }
+]
