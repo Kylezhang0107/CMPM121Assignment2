@@ -14,9 +14,13 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemy;
     public SpawnPoint[] SpawnPoints;    
 
+    private Dictionary<string, Enemy> enemiesByType;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        enemiesByType = EnemyJsonLoader.LoadEnemies();
+
         GameObject selector = Instantiate(button, level_selector.transform);
         selector.transform.localPosition = new Vector3(0, 130);
         selector.GetComponent<MenuSelectorController>().spawner = this;
@@ -63,16 +67,23 @@ public class EnemySpawner : MonoBehaviour
 
     IEnumerator SpawnZombie()
     {
+        if (!enemiesByType.TryGetValue("zombie", out Enemy zombie))
+        {
+            Debug.LogError("EnemySpawner could not find 'zombie' entry in enemies.json");
+            yield break;
+        }
+
         SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
         Vector2 offset = Random.insideUnitCircle * 1.8f;
                 
         Vector3 initial_position = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);
         GameObject new_enemy = Instantiate(enemy, initial_position, Quaternion.identity);
 
-        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(0);
+        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(zombie.sprite);
         EnemyController en = new_enemy.GetComponent<EnemyController>();
-        en.hp = new Hittable(50, Hittable.Team.MONSTERS, new_enemy);
-        en.speed = 10;
+        en.hp = new Hittable(zombie.hp, Hittable.Team.MONSTERS, new_enemy);
+        en.speed = zombie.speed;
+        en.attackDamage = zombie.damage;
         GameManager.Instance.AddEnemy(new_enemy);
         yield return new WaitForSeconds(0.5f);
     }
