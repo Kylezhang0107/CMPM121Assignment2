@@ -1,0 +1,18 @@
+{
+  "team": [
+    {
+      "firstname": "Kyle",
+      "lastname": "Zhang",
+      "github": "Kylezhang0107",
+      "email": "yzhan872@ucsc.edu"
+    },
+    {
+      "firstname": "Garrett",
+      "lastname": "Jeltema",
+      "github": "garrettjeltema",
+      "email": "gjeltema@ucsc.edu"
+    }
+  ],
+  "repository": "git@github.com:Kylezhang0107/CMPM121Assignment2.git",
+  "commit": "8730cb3107657d13aeb212ec239b22e67a4ce99e"
+}
