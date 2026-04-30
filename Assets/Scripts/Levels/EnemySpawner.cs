@@ -15,9 +15,6 @@ public class EnemySpawner : MonoBehaviour
     public GameObject button;
     public GameObject enemy;
     public SpawnPoint[] SpawnPoints;
-    
-    // adding text updating
-    public TextMeshProUGUI menuText;
 
     // adding level storage
     private List<Level> levels;
@@ -92,6 +89,7 @@ public class EnemySpawner : MonoBehaviour
             GameManager.Instance.countdown--;
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
+        GameManager.Instance.activeWave = currentWave;
         int wave = currentWave;
 
         // spawn all enemy types defined in JSON
@@ -106,13 +104,13 @@ public class EnemySpawner : MonoBehaviour
 
         // move to next wave
         currentWave++;
-        menuText.text = $"Wave {currentWave-1} Passed!";
+        GameManager.Instance.currentWave = currentWave - 1;
 
         // if exceeded number of waves, end the level
         if (currentLevel.waves > 0 && currentWave > currentLevel.waves)
         {
+            GameManager.Instance.playerWon = true;
             GameManager.Instance.state = GameManager.GameState.GAMEOVER;
-
             yield break;
         }
 
@@ -173,8 +171,19 @@ public class EnemySpawner : MonoBehaviour
 
     void SpawnEnemy(Spawn spawn, Enemy baseEnemy, int wave)
     {
-        // select random spawn point
-        SpawnPoint spawn_point = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
+        // filter spawn points by location type
+        SpawnPoint[] eligible = SpawnPoints;
+        string loc = (spawn.location ?? "random").Trim().ToLower();
+        if (loc == "random red")
+            eligible = System.Array.FindAll(SpawnPoints, p => p.kind == SpawnPoint.SpawnName.RED);
+        else if (loc == "random green")
+            eligible = System.Array.FindAll(SpawnPoints, p => p.kind == SpawnPoint.SpawnName.GREEN);
+        else if (loc == "random bone")
+            eligible = System.Array.FindAll(SpawnPoints, p => p.kind == SpawnPoint.SpawnName.BONE);
+
+        if (eligible.Length == 0) eligible = SpawnPoints; // fallback to all
+
+        SpawnPoint spawn_point = eligible[Random.Range(0, eligible.Length)];
         Vector2 offset = Random.insideUnitCircle * 1.8f;
 
         Vector3 pos = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);

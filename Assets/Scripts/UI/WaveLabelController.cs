@@ -15,11 +15,11 @@ public class WaveLabelController : MonoBehaviour
     {
         if (GameManager.Instance.state == GameManager.GameState.INWAVE)
         {
-            tmp.text = "Enemies left: " + GameManager.Instance.enemy_count;
+            tmp.text = $"Wave {GameManager.Instance.activeWave}\nEnemies left: {GameManager.Instance.enemy_count}";
         }
         if (GameManager.Instance.state == GameManager.GameState.COUNTDOWN)
         {
-            tmp.text = "Starting in " + GameManager.Instance.countdown;
+            tmp.text = $"Wave {GameManager.Instance.activeWave}\nStarting in {GameManager.Instance.countdown}";
         }
     }
 }
