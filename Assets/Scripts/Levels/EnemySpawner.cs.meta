@@ -1,2 +1,16 @@
 fileFormatVersion: 2
 guid: efde5d11a0c0a9e43921697e98a09200
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - level_selector: {instanceID: 0}
+  - button: {instanceID: 0}
+  - enemy: {instanceID: 0}
+  - waveEndPanel: {instanceID: 0}
+  - waveEndText: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

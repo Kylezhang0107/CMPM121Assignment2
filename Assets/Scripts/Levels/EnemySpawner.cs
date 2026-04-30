@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+// for buttons
+using TMPro;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -13,6 +15,9 @@ public class EnemySpawner : MonoBehaviour
     public GameObject button;
     public GameObject enemy;
     public SpawnPoint[] SpawnPoints;
+    
+    // adding text updating
+    public TextMeshProUGUI menuText;
 
     // adding level storage
     private List<Level> levels;
@@ -101,18 +106,18 @@ public class EnemySpawner : MonoBehaviour
 
         // move to next wave
         currentWave++;
+        menuText.text = $"Wave {currentWave-1} Passed!";
 
         // if exceeded number of waves, end the level
         if (currentLevel.waves > 0 && currentWave > currentLevel.waves)
         {
-            Debug.Log("Player wins!");
+            GameManager.Instance.state = GameManager.GameState.GAMEOVER;
+
             yield break;
         }
 
-        // delay before next wave (can be replaced with UI button later)
-        yield return new WaitForSeconds(2);
-
-        NextWave();
+        // stops coroutine - button will trigger next wave
+        yield break;
     }
 
     IEnumerator HandleSpawn(Spawn spawn, int wave)
