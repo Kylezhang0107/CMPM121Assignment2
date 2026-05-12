@@ -18,7 +18,7 @@ public class RewardScreenManager : MonoBehaviour
         {
             foreach (TextMeshProUGUI tmp in Resources.FindObjectsOfTypeAll<TextMeshProUGUI>())
             {
-                if (tmp.gameObject.name == "Wave")
+                if (tmp.gameObject.name == $"Wave {GameManager.Instance.currentWave} Completed")
                 {
                     waveLabel = tmp;
                     break;
