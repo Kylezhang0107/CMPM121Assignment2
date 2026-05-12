@@ -28,6 +28,7 @@ public class SpellBuilder
             };
 
         spell.spellName = data.name;
+        spell.description = data.description ?? "";
 
         spell.manaCost =
             RPNEvaluator.RPNEvaluator.Evaluate(

@@ -7,6 +7,7 @@ public class Spell
 {
     // configurable fields -start
     public string spellName = "Bolt";
+    public string description = "";
 
     public int manaCost = 10;
     public int damageAmount = 100;
@@ -33,6 +34,11 @@ public class Spell
     public string GetName()
     {
         return spellName;
+    }
+
+    public string GetDescription()
+    {
+        return description;
     }
 
     public int GetManaCost()

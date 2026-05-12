@@ -123,7 +123,7 @@ public class EnemySpawner : MonoBehaviour
         // wait for enemies to die
         yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
         GameManager.Instance.state = GameManager.GameState.WAVEEND;
-        RewardScreenManager.Instance.ShowReward();
+        // RewardScreenManager detects the state change and calls ShowReward() itself
 
         // move to next wave
         currentWave++;
