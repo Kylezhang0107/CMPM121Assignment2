@@ -26,16 +26,31 @@ public class SpellCaster
         this.max_mana = mana;
         this.mana_reg = mana_reg;
         this.team = team;
-        spell = new SpellBuilder().Build(this);
+
+        // load spell definitions
+        Dictionary<string, SpellData> spells = SpellJsonLoader.LoadSpells();
+
+        // choose default spell
+        SpellData spellData = spells["arcane_bolt"];
+
+        // build runtime spell
+        spell = new SpellBuilder(spellData).Build(this);
     }
 
-    public IEnumerator Cast(Vector3 where, Vector3 target)
-    {        
-        if (mana >= spell.GetManaCost() && spell.IsReady())
+    public virtual IEnumerator Cast(Vector3 where, Vector3 target)
+    {
+        if (mana >= spell.GetManaCost()
+            && spell.IsReady())
         {
             mana -= spell.GetManaCost();
-            yield return spell.Cast(where, target, team);
+
+            yield return spell.Cast(
+                where,
+                target,
+                team
+            );
         }
+
         yield break;
     }
 

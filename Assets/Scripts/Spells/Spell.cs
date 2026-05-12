@@ -5,6 +5,22 @@ using Newtonsoft.Json.Linq;
 
 public class Spell 
 {
+    // configurable fields -start
+    public string spellName = "Bolt";
+
+    public int manaCost = 10;
+    public int damageAmount = 100;
+
+    public float cooldown = 0.75f;
+
+    public int icon = 0;
+
+    public float projectileSpeed = 15f;
+
+    public string projectileTrajectory = "straight";
+
+    public int projectileSprite = 0;
+    // end-
     public float last_cast;
     public SpellCaster owner;
     public Hittable.Team team;
@@ -16,27 +32,27 @@ public class Spell
 
     public string GetName()
     {
-        return "Bolt";
+        return spellName;
     }
 
     public int GetManaCost()
     {
-        return 10;
+        return manaCost;
     }
 
     public int GetDamage()
     {
-        return 100;
+        return damageAmount;
     }
 
     public float GetCooldown()
     {
-        return 0.75f;
+        return cooldown;
     }
 
     public virtual int GetIcon()
     {
-        return 0;
+        return icon;
     }
 
     public bool IsReady()
@@ -47,11 +63,11 @@ public class Spell
     public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team)
     {
         this.team = team;
-        GameManager.Instance.projectileManager.CreateProjectile(0, "straight", where, target - where, 15f, OnHit);
+        GameManager.Instance.projectileManager.CreateProjectile(projectileSprite, projectileTrajectory, where, target - where, projectileSpeed, OnHit);
         yield return new WaitForEndOfFrame();
     }
 
-    void OnHit(Hittable other, Vector3 impact)
+    public void OnHit(Hittable other, Vector3 impact)
     {
         if (other.team != team)
         {
