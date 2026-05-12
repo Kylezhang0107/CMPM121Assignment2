@@ -78,6 +78,27 @@ public class EnemySpawner : MonoBehaviour
         StartCoroutine(SpawnWave());
     }
 
+    public void ReturnToMenu()
+    {
+        StopAllCoroutines();
+
+        // clear remaining enemies
+        foreach (GameObject e in GameObject.FindGameObjectsWithTag("Enemy"))
+            Destroy(e);
+
+        // reset game state
+        GameManager.Instance.state = GameManager.GameState.PREGAME;
+        GameManager.Instance.playerWon = false;
+        GameManager.Instance.currentWave = 0;
+        GameManager.Instance.activeWave = 0;
+
+        currentWave = 1;
+        currentLevel = null;
+
+        // show the level selector
+        level_selector.gameObject.SetActive(true);
+    }
+
 
     IEnumerator SpawnWave()
     {
@@ -90,6 +111,7 @@ public class EnemySpawner : MonoBehaviour
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
         GameManager.Instance.activeWave = currentWave;
+        GameManager.Instance.waveEnemiesKilled = 0;
         int wave = currentWave;
 
         // spawn all enemy types defined in JSON

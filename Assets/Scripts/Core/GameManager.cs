@@ -19,6 +19,7 @@ public class GameManager
     public int currentWave;
     public int activeWave;
     public bool playerWon;
+    public int waveEnemiesKilled;
     private static GameManager theInstance;
     public static GameManager Instance {  get
         {
@@ -46,6 +47,7 @@ public class GameManager
     public void RemoveEnemy(GameObject enemy)
     {
         enemies.Remove(enemy);
+        waveEnemiesKilled++;
     }
 
     public GameObject GetClosestEnemy(Vector3 point)
