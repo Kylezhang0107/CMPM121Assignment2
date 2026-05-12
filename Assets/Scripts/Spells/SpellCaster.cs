@@ -10,6 +10,9 @@ public class SpellCaster
     public Hittable.Team team;
     public Spell spell;
 
+    // potential spell to be accepted
+    public Spell pendingSpell;
+
     public IEnumerator ManaRegeneration()
     {
         while (true)
@@ -31,10 +34,12 @@ public class SpellCaster
         Dictionary<string, SpellData> spells = SpellJsonLoader.LoadSpells();
 
         // choose default spell
-        SpellData spellData = spells["arcane_bolt"];
-
-        // build runtime spell
-        spell = new SpellBuilder(spellData).Build(this);
+        spell =
+            new SpellBuilder()
+                .BuildSpecific(
+                    this,
+                    spells["arcane_bolt"]
+                );
     }
 
     public virtual IEnumerator Cast(Vector3 where, Vector3 target)

@@ -1,22 +1,23 @@
 using UnityEngine;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-
+using System.Linq;
+using Unity.VisualScripting;
 
 public class SpellBuilder
 {
-    private SpellData data;
+    private Dictionary<string, SpellData> spells;
 
-    // constructor stores spell definition
-    public SpellBuilder(SpellData spellData)
+    public SpellBuilder()
     {
-        data = spellData;
+        spells = SpellJsonLoader.LoadSpells();
     }
 
-    // builds configured runtime Spell
-    public Spell Build(SpellCaster owner, int power = 0)
+    // builds a SPECIFIC spell
+    public Spell BuildSpecific(
+        SpellCaster owner,
+        SpellData data,
+        int power = 0
+    )
     {
         Spell spell = new Spell(owner);
 
@@ -26,10 +27,8 @@ public class SpellBuilder
                 { "power", power }
             };
 
-        // basic info
         spell.spellName = data.name;
 
-        // evaluate RPN expressions
         spell.manaCost =
             RPNEvaluator.RPNEvaluator.Evaluate(
                 data.mana_cost,
@@ -48,7 +47,6 @@ public class SpellBuilder
                 vars
             );
 
-        // projectile settings
         spell.projectileTrajectory =
             data.projectile.trajectory;
 
@@ -61,9 +59,34 @@ public class SpellBuilder
         spell.projectileSprite =
             data.projectile.sprite;
 
-        // icon
         spell.icon = data.icon;
 
         return spell;
+    }
+
+    // builds RANDOM spell reward
+    public Spell BuildRandom(
+        SpellCaster owner,
+        int power = 0
+    )
+    {
+        List<string> validSpells =
+            new List<string>()
+            {
+                "magic_missile",
+                "arcane_blast",
+                "arcane_spray"
+            };
+
+        string chosen =
+            validSpells[
+                Random.Range(0, validSpells.Count)
+            ];
+
+        return BuildSpecific(
+            owner,
+            spells[chosen],
+            power
+        );
     }
 }

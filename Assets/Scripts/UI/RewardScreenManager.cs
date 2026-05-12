@@ -4,12 +4,21 @@ using TMPro;
 
 public class RewardScreenManager : MonoBehaviour
 {
+    // for spell assignment
+    public static RewardScreenManager Instance;
+    public TextMeshProUGUI spellNameText;
+
     public GameObject rewardUI;
     public GameObject endUI;
     public TextMeshProUGUI waveLabel;
 
     private TextMeshProUGUI endLabel;
     private TextMeshProUGUI statsLabel;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -86,5 +95,21 @@ public class RewardScreenManager : MonoBehaviour
             rewardUI.SetActive(false);
             endUI.SetActive(false);
         }
+    }
+
+    public void ShowReward()
+    {
+        SpellCaster caster =
+            GameManager.Instance.player
+                .GetComponent<PlayerController>()
+                .spellcaster;
+
+        caster.pendingSpell =
+            new SpellBuilder().BuildRandom(caster);
+
+        spellNameText.text =
+            caster.pendingSpell.GetName();
+
+        rewardUI.SetActive(true);
     }
 }
