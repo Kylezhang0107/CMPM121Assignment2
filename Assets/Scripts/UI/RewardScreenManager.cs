@@ -2,9 +2,13 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Text;
 
 public class RewardScreenManager : MonoBehaviour
 {
+    private const int MaxSpellNameChars = 42;
+    private const int MaxSpellDescriptionChars = 320;
+
     // for spell assignment
     public static RewardScreenManager Instance;
     public TextMeshProUGUI spellNameText;
@@ -20,6 +24,8 @@ public class RewardScreenManager : MonoBehaviour
 
     private TextMeshProUGUI endLabel;
     private TextMeshProUGUI statsLabel;
+    private Image spellNameCard;
+    private Image spellDescriptionCard;
 
     private void Awake()
     {
@@ -47,7 +53,25 @@ public class RewardScreenManager : MonoBehaviour
 
             // Stats label (enemies killed this wave)
             statsLabel = CreateTMPLabel("StatsLabel", rewardUI.transform,
-                new Vector2(0f, -130f), new Vector2(280f, 50f), 24, font);
+                new Vector2(0f, -120f), new Vector2(300f, 36f), 22, font);
+            statsLabel.alignment = TextAlignmentOptions.Center;
+            statsLabel.overflowMode = TextOverflowModes.Ellipsis;
+
+            spellNameCard = EnsurePanelImage(
+                "SpellNameCard",
+                rewardUI.transform,
+                new Vector2(0f, -165f),
+                new Vector2(320f, 52f),
+                new Color(1f, 1f, 1f, 0.16f)
+            );
+
+            spellDescriptionCard = EnsurePanelImage(
+                "SpellDescriptionCard",
+                rewardUI.transform,
+                new Vector2(0f, -320f),
+                new Vector2(320f, 132f),
+                new Color(1f, 1f, 1f, 0.1f)
+            );
 
             // Spell icon (top-left area of panel)
             if (spellIconImage == null)
@@ -55,33 +79,65 @@ public class RewardScreenManager : MonoBehaviour
                 GameObject iconObj = new GameObject("SpellIcon");
                 iconObj.transform.SetParent(rewardUI.transform, false);
                 RectTransform irt = iconObj.AddComponent<RectTransform>();
-                irt.anchorMin = new Vector2(0.5f, 1f);
-                irt.anchorMax = new Vector2(0.5f, 1f);
-                irt.pivot = new Vector2(0.5f, 1f);
-                irt.anchoredPosition = new Vector2(-80f, -200f);
-                irt.sizeDelta = new Vector2(64f, 64f);
+                SetRectTransform(irt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -190f), new Vector2(64f, 64f));
                 spellIconImage = iconObj.AddComponent<Image>();
                 spellIconImage.color = Color.white;
+            }
+            else
+            {
+                SetRectTransform(spellIconImage.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -190f), new Vector2(64f, 64f));
             }
 
             // Spell name label
             if (spellNameText == null)
                 spellNameText = CreateTMPLabel("SpellNameLabel", rewardUI.transform,
-                    new Vector2(30f, -210f), new Vector2(180f, 40f), 22, font);
+                    new Vector2(0f, -165f), new Vector2(300f, 44f), 21, font);
+            else
+                SetRectTransform(spellNameText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -165f), new Vector2(300f, 44f));
+
+            spellNameText.alignment = TextAlignmentOptions.Left;
+            spellNameText.enableAutoSizing = true;
+            spellNameText.fontSizeMin = 14;
+            spellNameText.fontSizeMax = 22;
+            spellNameText.overflowMode = TextOverflowModes.Ellipsis;
+            spellNameText.textWrappingMode = TextWrappingModes.Normal;
+            spellNameText.margin = new Vector4(10f, 2f, 8f, 0f);
 
             // Spell description label
             if (spellDescriptionText == null)
             {
                 spellDescriptionText = CreateTMPLabel("SpellDescLabel", rewardUI.transform,
-                    new Vector2(0f, -260f), new Vector2(260f, 80f), 18, font);
-                spellDescriptionText.textWrappingMode = TextWrappingModes.Normal;
+                    new Vector2(0f, -320f), new Vector2(300f, 112f), 17, font);
+            }
+            else
+            {
+                SetRectTransform(spellDescriptionText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -320f), new Vector2(300f, 112f));
+            }
+
+            spellDescriptionText.alignment = TextAlignmentOptions.TopLeft;
+            spellDescriptionText.textWrappingMode = TextWrappingModes.Normal;
+            spellDescriptionText.overflowMode = TextOverflowModes.Ellipsis;
+            spellDescriptionText.maxVisibleLines = 5;
+            spellDescriptionText.margin = new Vector4(10f, 8f, 8f, 0f);
+
+            // Keep card layers behind text/icon even if objects already existed in scene.
+            if (spellNameCard != null && spellNameText != null)
+            {
+                int textIdx = spellNameText.transform.GetSiblingIndex();
+                spellNameCard.transform.SetSiblingIndex(Mathf.Max(0, textIdx - 1));
+            }
+
+            if (spellDescriptionCard != null && spellDescriptionText != null)
+            {
+                int textIdx = spellDescriptionText.transform.GetSiblingIndex();
+                spellDescriptionCard.transform.SetSiblingIndex(Mathf.Max(0, textIdx - 1));
             }
 
             // Accept Spell button (if not assigned in Inspector)
             if (acceptButton == null)
             {
                 acceptButton = CreateButton("AcceptButton", rewardUI.transform,
-                    new Vector2(0f, -360f), new Vector2(160f, 40f), "Accept Spell", font);
+                    new Vector2(0f, -435f), new Vector2(170f, 42f), "Accept Spell", font);
             }
             acceptButton.onClick.AddListener(OnAcceptSpell);
         }
@@ -171,6 +227,62 @@ public class RewardScreenManager : MonoBehaviour
         return btn;
     }
 
+    private Image EnsurePanelImage(string name, Transform parent, Vector2 anchoredPos, Vector2 size, Color color)
+    {
+        Transform existing = parent.Find(name);
+        Image panelImage;
+
+        if (existing != null)
+        {
+            panelImage = existing.GetComponent<Image>();
+            if (panelImage == null)
+            {
+                panelImage = existing.gameObject.AddComponent<Image>();
+            }
+        }
+        else
+        {
+            GameObject panelObj = new GameObject(name);
+            panelObj.transform.SetParent(parent, false);
+            panelImage = panelObj.AddComponent<Image>();
+        }
+
+        panelImage.color = color;
+
+        RectTransform rt = panelImage.GetComponent<RectTransform>();
+        SetRectTransform(
+            rt,
+            new Vector2(0.5f, 1f),
+            new Vector2(0.5f, 1f),
+            new Vector2(0.5f, 0.5f),
+            anchoredPos,
+            size
+        );
+
+        return panelImage;
+    }
+
+    private void SetRectTransform(
+        RectTransform rt,
+        Vector2 anchorMin,
+        Vector2 anchorMax,
+        Vector2 pivot,
+        Vector2 anchoredPosition,
+        Vector2 size
+    )
+    {
+        if (rt == null)
+        {
+            return;
+        }
+
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.pivot = pivot;
+        rt.anchoredPosition = anchoredPosition;
+        rt.sizeDelta = size;
+    }
+
     private GameManager.GameState lastKnownState = (GameManager.GameState)(-1);
 
     void Update()
@@ -239,17 +351,20 @@ public class RewardScreenManager : MonoBehaviour
 
         if (spellNameText != null && caster.pendingSpell != null)
         {
-            spellNameText.text = caster.pendingSpell.GetName();
+            spellNameText.text = ClampTextForUI(caster.pendingSpell.GetName(), MaxSpellNameChars);
         }
 
         if (spellDescriptionText != null && caster.pendingSpell != null)
         {
-            spellDescriptionText.text = caster.pendingSpell.GetDescription();
+            StringBuilder descriptionBuilder = new StringBuilder();
+            descriptionBuilder.Append(ClampTextForUI(caster.pendingSpell.GetDescription(), MaxSpellDescriptionChars));
 
             if (caster.SpellCount >= SpellCaster.MaxEquippedSpells)
             {
-                spellDescriptionText.text += "\n\nInventory full: click a slot drop button to replace.";
+                descriptionBuilder.Append("\n\nInventory full: click a slot drop button to replace.");
             }
+
+            spellDescriptionText.text = descriptionBuilder.ToString();
         }
 
         if (spellIconImage != null && caster.pendingSpell != null)
@@ -303,5 +418,21 @@ public class RewardScreenManager : MonoBehaviour
         Debug.Log("Spell declined!");
 
         rewardUI.SetActive(false);
+    }
+
+    private string ClampTextForUI(string input, int maxChars)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return string.Empty;
+        }
+
+        string singleSpaced = input.Replace("\r", "").Trim();
+        if (singleSpaced.Length <= maxChars)
+        {
+            return singleSpaced;
+        }
+
+        return singleSpaced.Substring(0, maxChars - 3).TrimEnd() + "...";
     }
 }
