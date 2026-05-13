@@ -6,9 +6,6 @@ using System.Text;
 
 public class RewardScreenManager : MonoBehaviour
 {
-    private const int MaxSpellNameChars = 42;
-    private const int MaxSpellDescriptionChars = 320;
-
     // for spell assignment
     public static RewardScreenManager Instance;
     public TextMeshProUGUI spellNameText;
@@ -26,6 +23,7 @@ public class RewardScreenManager : MonoBehaviour
     private TextMeshProUGUI statsLabel;
     private Image spellNameCard;
     private Image spellDescriptionCard;
+    private ScrollRect spellDescriptionScroll;
 
     private void Awake()
     {
@@ -97,11 +95,12 @@ public class RewardScreenManager : MonoBehaviour
 
             spellNameText.alignment = TextAlignmentOptions.Left;
             spellNameText.enableAutoSizing = true;
-            spellNameText.fontSizeMin = 14;
+            spellNameText.fontSizeMin = 10;
             spellNameText.fontSizeMax = 22;
-            spellNameText.overflowMode = TextOverflowModes.Ellipsis;
+            spellNameText.overflowMode = TextOverflowModes.Overflow;
             spellNameText.textWrappingMode = TextWrappingModes.Normal;
             spellNameText.margin = new Vector4(10f, 2f, 8f, 0f);
+            spellNameText.maxVisibleLines = 999;
 
             // Spell description label
             if (spellDescriptionText == null)
@@ -116,9 +115,12 @@ public class RewardScreenManager : MonoBehaviour
 
             spellDescriptionText.alignment = TextAlignmentOptions.TopLeft;
             spellDescriptionText.textWrappingMode = TextWrappingModes.Normal;
-            spellDescriptionText.overflowMode = TextOverflowModes.Ellipsis;
-            spellDescriptionText.maxVisibleLines = 5;
+            spellDescriptionText.overflowMode = TextOverflowModes.Overflow;
+            spellDescriptionText.maxVisibleLines = 999;
             spellDescriptionText.margin = new Vector4(10f, 8f, 8f, 0f);
+            spellDescriptionText.enableAutoSizing = false;
+
+            EnsureDescriptionScrollArea();
 
             // Keep card layers behind text/icon even if objects already existed in scene.
             if (spellNameCard != null && spellNameText != null)
@@ -351,25 +353,37 @@ public class RewardScreenManager : MonoBehaviour
 
         if (spellNameText != null && caster.pendingSpell != null)
         {
-            spellNameText.text = ClampTextForUI(caster.pendingSpell.GetName(), MaxSpellNameChars);
+            spellNameText.text = NormalizeUIText(caster.pendingSpell.GetName());
         }
 
         if (spellDescriptionText != null && caster.pendingSpell != null)
         {
             StringBuilder descriptionBuilder = new StringBuilder();
-            descriptionBuilder.Append(ClampTextForUI(caster.pendingSpell.GetDescription(), MaxSpellDescriptionChars));
+            descriptionBuilder.Append(NormalizeUIText(caster.pendingSpell.GetDescription()));
 
             if (caster.SpellCount >= SpellCaster.MaxEquippedSpells)
             {
-                descriptionBuilder.Append("\n\nInventory full: click a slot drop button to replace.");
+                descriptionBuilder.Append("\n\nInventory full: click one of your spell slots to replace it.");
             }
 
             spellDescriptionText.text = descriptionBuilder.ToString();
+
+            if (spellDescriptionScroll != null)
+            {
+                Canvas.ForceUpdateCanvases();
+                spellDescriptionScroll.verticalNormalizedPosition = 1f;
+            }
         }
 
         if (spellIconImage != null && caster.pendingSpell != null)
         {
             GameManager.Instance.spellIconManager.PlaceSprite(caster.pendingSpell.GetIcon(), spellIconImage);
+        }
+
+        if (acceptButton != null)
+        {
+            bool inventoryFull = caster.SpellCount >= SpellCaster.MaxEquippedSpells;
+            acceptButton.gameObject.SetActive(!inventoryFull);
         }
     }
 
@@ -389,6 +403,12 @@ public class RewardScreenManager : MonoBehaviour
         SpellCaster caster = playerController.spellcaster;
         if (caster.pendingSpell != null)
         {
+            if (caster.SpellCount >= SpellCaster.MaxEquippedSpells)
+            {
+                Debug.Log("Spell inventory full: pick a slot to replace instead of accepting directly.");
+                return;
+            }
+
             if (caster.AcceptPendingSpell())
             {
                 Debug.Log("Spell accepted: " + caster.ActiveSpell.GetName());
@@ -420,19 +440,112 @@ public class RewardScreenManager : MonoBehaviour
         rewardUI.SetActive(false);
     }
 
-    private string ClampTextForUI(string input, int maxChars)
+    private void EnsureDescriptionScrollArea()
+    {
+        if (spellDescriptionText == null || rewardUI == null)
+        {
+            return;
+        }
+
+        Transform scrollRoot = rewardUI.transform.Find("SpellDescriptionScroll");
+        GameObject scrollObj;
+        if (scrollRoot == null)
+        {
+            scrollObj = new GameObject("SpellDescriptionScroll");
+            scrollObj.transform.SetParent(rewardUI.transform, false);
+        }
+        else
+        {
+            scrollObj = scrollRoot.gameObject;
+        }
+
+        RectTransform scrollRT = scrollObj.GetComponent<RectTransform>();
+        if (scrollRT == null)
+        {
+            scrollRT = scrollObj.AddComponent<RectTransform>();
+        }
+        SetRectTransform(
+            scrollRT,
+            new Vector2(0.5f, 1f),
+            new Vector2(0.5f, 1f),
+            new Vector2(0.5f, 0.5f),
+            new Vector2(0f, -320f),
+            new Vector2(300f, 112f)
+        );
+
+        spellDescriptionScroll = scrollObj.GetComponent<ScrollRect>();
+        if (spellDescriptionScroll == null)
+        {
+            spellDescriptionScroll = scrollObj.AddComponent<ScrollRect>();
+        }
+        spellDescriptionScroll.horizontal = false;
+        spellDescriptionScroll.vertical = true;
+        spellDescriptionScroll.movementType = ScrollRect.MovementType.Clamped;
+        spellDescriptionScroll.scrollSensitivity = 40f;
+
+        Transform viewport = scrollObj.transform.Find("Viewport");
+        GameObject viewportObj;
+        if (viewport == null)
+        {
+            viewportObj = new GameObject("Viewport");
+            viewportObj.transform.SetParent(scrollObj.transform, false);
+        }
+        else
+        {
+            viewportObj = viewport.gameObject;
+        }
+
+        RectTransform viewportRT = viewportObj.GetComponent<RectTransform>();
+        if (viewportRT == null)
+        {
+            viewportRT = viewportObj.AddComponent<RectTransform>();
+        }
+        viewportRT.anchorMin = Vector2.zero;
+        viewportRT.anchorMax = Vector2.one;
+        viewportRT.pivot = new Vector2(0.5f, 0.5f);
+        viewportRT.anchoredPosition = Vector2.zero;
+        viewportRT.sizeDelta = Vector2.zero;
+
+        RectMask2D rectMask = viewportObj.GetComponent<RectMask2D>();
+        if (rectMask == null)
+        {
+            viewportObj.AddComponent<RectMask2D>();
+        }
+
+        // Ensure text lives under viewport and drives content size.
+        spellDescriptionText.transform.SetParent(viewportObj.transform, false);
+        RectTransform textRT = spellDescriptionText.rectTransform;
+        textRT.anchorMin = new Vector2(0f, 1f);
+        textRT.anchorMax = new Vector2(1f, 1f);
+        textRT.pivot = new Vector2(0.5f, 1f);
+        textRT.anchoredPosition = Vector2.zero;
+        textRT.sizeDelta = new Vector2(0f, 0f);
+
+        ContentSizeFitter fitter = spellDescriptionText.GetComponent<ContentSizeFitter>();
+        if (fitter == null)
+        {
+            fitter = spellDescriptionText.gameObject.AddComponent<ContentSizeFitter>();
+        }
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        spellDescriptionScroll.viewport = viewportRT;
+        spellDescriptionScroll.content = textRT;
+
+        if (spellDescriptionCard != null)
+        {
+            int scrollIdx = scrollObj.transform.GetSiblingIndex();
+            spellDescriptionCard.transform.SetSiblingIndex(Mathf.Max(0, scrollIdx - 1));
+        }
+    }
+
+    private string NormalizeUIText(string input)
     {
         if (string.IsNullOrWhiteSpace(input))
         {
             return string.Empty;
         }
 
-        string singleSpaced = input.Replace("\r", "").Trim();
-        if (singleSpaced.Length <= maxChars)
-        {
-            return singleSpaced;
-        }
-
-        return singleSpaced.Substring(0, maxChars - 3).TrimEnd() + "...";
+        return input.Replace("\r", "").Trim();
     }
 }
