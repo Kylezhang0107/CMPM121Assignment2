@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
 
     public SpellCaster spellcaster;
     public SpellUI spellui;
+    public SpellUIContainer spellUIContainer;
 
     public int speed;
 
@@ -37,13 +38,54 @@ public class PlayerController : MonoBehaviour
         // tell UI elements what to show
         healthui.SetHealth(hp);
         manaui.SetSpellCaster(spellcaster);
-        spellui.SetSpell(spellcaster.spell);
+
+        if (spellUIContainer == null)
+        {
+            spellUIContainer = FindFirstObjectByType<SpellUIContainer>();
+        }
+
+        if (spellUIContainer != null)
+        {
+            spellUIContainer.SetSpellCaster(spellcaster);
+        }
+        else if (spellui != null)
+        {
+            spellui.SetSpell(spellcaster.ActiveSpell);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (spellcaster == null || Keyboard.current == null)
+        {
+            return;
+        }
+
+        if (Keyboard.current.tabKey.wasPressedThisFrame)
+        {
+            spellcaster.SelectNextSpell();
+        }
+
+        if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        {
+            spellcaster.SetActiveSpellIndex(0);
+        }
+
+        if (Keyboard.current.digit2Key.wasPressedThisFrame)
+        {
+            spellcaster.SetActiveSpellIndex(1);
+        }
+
+        if (Keyboard.current.digit3Key.wasPressedThisFrame)
+        {
+            spellcaster.SetActiveSpellIndex(2);
+        }
+
+        if (Keyboard.current.digit4Key.wasPressedThisFrame)
+        {
+            spellcaster.SetActiveSpellIndex(3);
+        }
     }
 
     void OnAttack(InputValue value)

@@ -231,7 +231,11 @@ public class RewardScreenManager : MonoBehaviour
         }
 
         caster.pendingSpell =
-            new SpellBuilder().BuildRandom(caster);
+            new SpellBuilder().BuildRandom(
+                caster,
+                caster.spellPower,
+                Mathf.Max(1, GameManager.Instance.currentWave)
+            );
 
         if (spellNameText != null && caster.pendingSpell != null)
         {
@@ -241,6 +245,11 @@ public class RewardScreenManager : MonoBehaviour
         if (spellDescriptionText != null && caster.pendingSpell != null)
         {
             spellDescriptionText.text = caster.pendingSpell.GetDescription();
+
+            if (caster.SpellCount >= SpellCaster.MaxEquippedSpells)
+            {
+                spellDescriptionText.text += "\n\nInventory full: click a slot drop button to replace.";
+            }
         }
 
         if (spellIconImage != null && caster.pendingSpell != null)
@@ -265,12 +274,16 @@ public class RewardScreenManager : MonoBehaviour
         SpellCaster caster = playerController.spellcaster;
         if (caster.pendingSpell != null)
         {
-            caster.spell = caster.pendingSpell;
-            caster.pendingSpell = null;
-            Debug.Log("Spell accepted: " + caster.spell.GetName());
-        }
+            if (caster.AcceptPendingSpell())
+            {
+                Debug.Log("Spell accepted: " + caster.ActiveSpell.GetName());
+                rewardUI.SetActive(false);
+                return;
+            }
 
-        rewardUI.SetActive(false);
+            // If no slots are free, the player must click one of the slot drop buttons.
+            Debug.Log("Spell inventory full: choose a slot drop button to replace a spell.");
+        }
     }
 
     public void OnDeclineSpell()

@@ -22,6 +22,7 @@ public class ProjectileData
 [Serializable]
 public class SpellData
 {
+    public string id;
     public string name;
     public string description;
 
@@ -42,4 +43,18 @@ public class SpellData
 
     // optional
     public ProjectileData secondary_projectile;
+
+    // modifier values (all optional)
+    public string damage_multiplier;
+    public string mana_multiplier;
+    public string cooldown_multiplier;
+    public string speed_multiplier;
+    public string mana_adder;
+    public string projectile_trajectory;
+    public string delay;
+    public string angle;
+
+    // custom modifier fields
+    public string burst_count;
+    public string burst_spread;
 }

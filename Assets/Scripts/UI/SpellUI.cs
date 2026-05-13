@@ -23,7 +23,23 @@ public class SpellUI : MonoBehaviour
     public void SetSpell(Spell spell)
     {
         this.spell = spell;
+        if (spell == null)
+        {
+            manacost.text = "-";
+            damage.text = "-";
+            cooldown.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 0f);
+            return;
+        }
+
         GameManager.Instance.spellIconManager.PlaceSprite(spell.GetIcon(), icon.GetComponent<Image>());
+    }
+
+    public void SetHighlighted(bool isHighlighted)
+    {
+        if (highlight != null)
+        {
+            highlight.SetActive(isHighlighted);
+        }
     }
 
     // Update is called once per frame
