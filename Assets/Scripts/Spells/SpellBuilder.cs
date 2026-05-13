@@ -37,7 +37,7 @@ public class SpellBuilder
             );
 
         spell.cooldown =
-            RPNEvaluator.RPNEvaluator.Evaluate(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
                 data.cooldown,
                 vars
             );
@@ -52,7 +52,7 @@ public class SpellBuilder
             data.projectile.trajectory;
 
         spell.projectileSpeed =
-            RPNEvaluator.RPNEvaluator.Evaluate(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
                 data.projectile.speed,
                 vars
             );

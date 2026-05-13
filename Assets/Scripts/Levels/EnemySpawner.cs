@@ -21,6 +21,9 @@ public class EnemySpawner : MonoBehaviour
     private Level currentLevel;
     private int currentWave = 1;    
 
+    // tracks spawn count
+    private int activeSpawnCoroutines = 0;
+
     private Dictionary<string, Enemy> enemiesByType;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -114,14 +117,19 @@ public class EnemySpawner : MonoBehaviour
         GameManager.Instance.waveEnemiesKilled = 0;
         int wave = currentWave;
 
-        // spawn all enemy types defined in JSON
         foreach (Spawn spawn in currentLevel.spawns)
         {
+            activeSpawnCoroutines++;
             StartCoroutine(HandleSpawn(spawn, wave));
         }
 
-        // wait for enemies to die
-        yield return new WaitWhile(() => GameManager.Instance.enemy_count > 0);
+        // wait until:
+        // 1. all spawning finished
+        // 2. all enemies dead
+        yield return new WaitUntil(() =>
+            activeSpawnCoroutines == 0 &&
+            GameManager.Instance.enemy_count == 0
+        );
         GameManager.Instance.state = GameManager.GameState.WAVEEND;
         // RewardScreenManager detects the state change and calls ShowReward() itself
 
@@ -190,6 +198,9 @@ public class EnemySpawner : MonoBehaviour
 
             yield return new WaitForSeconds(delay);
         }
+
+        // spawning for this enemy type finished
+        activeSpawnCoroutines--;
     }
 
     void SpawnEnemy(Spawn spawn, Enemy baseEnemy, int wave)
