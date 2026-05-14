@@ -133,6 +133,18 @@ public class SpellCaster
         {
             Spell oldSpell = spells[i];
 
+            if (oldSpell == null)
+            {
+                Debug.LogError("Null spell in this list.");
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(oldSpell.spellId))
+            {
+                Debug.LogError("Spell missing spellId: " + oldSpell.spellName);
+                continue;
+            }
+
             Spell rebuilt =
                 builder.BuildSpecific(
                     this,

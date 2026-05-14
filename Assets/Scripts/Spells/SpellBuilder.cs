@@ -176,6 +176,7 @@ public class SpellBuilder
     {
         Spell fallback = new Spell(owner);
         fallback.spellName = "Arcane Bolt";
+        fallback.spellId = "arcane_bolt";
         fallback.description = "Fallback spell when a configured spell cannot be loaded.";
         fallback.icon = 0;
         fallback.manaCost = 10;

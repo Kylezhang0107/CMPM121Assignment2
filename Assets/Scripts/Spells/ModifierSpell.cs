@@ -9,6 +9,9 @@ public class ModifierSpell : Spell
         : base(owner)
     {
         this.inner = inner;
+
+        // preserve spell id
+        this.spellId = inner.spellId;
     }
 
     public override int GetIcon()
