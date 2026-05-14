@@ -5,6 +5,8 @@ public class DoublerSpell : ModifierSpell
 {
     private readonly float delaySeconds;
 
+    public float DelaySeconds => delaySeconds;
+
     public DoublerSpell(SpellCaster owner, Spell inner, float delaySeconds)
         : base(owner, inner)
     {

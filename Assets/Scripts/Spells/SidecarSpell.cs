@@ -7,6 +7,9 @@ public class SidecarSpell : ModifierSpell
     private readonly int extraProjectiles;
     private readonly float spreadDegrees;
 
+    public int ExtraProjectiles => extraProjectiles;
+    public float SpreadDegrees => spreadDegrees;
+
     public SidecarSpell(SpellCaster owner, Spell inner, int extraProjectiles, float spreadDegrees)
         : base(owner, inner)
     {

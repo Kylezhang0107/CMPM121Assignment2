@@ -14,6 +14,11 @@ public class ModifierSpell : Spell
         this.spellId = inner.spellId;
     }
 
+    public Spell GetInner()
+    {
+        return inner;
+    }
+
     public override int GetIcon()
     {
         return inner.GetIcon();

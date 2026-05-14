@@ -5,6 +5,8 @@ public class SplitterSpell : ModifierSpell
 {
     private readonly float splitAngleDegrees;
 
+    public float SplitAngleDegrees => splitAngleDegrees;
+
     public SplitterSpell(SpellCaster owner, Spell inner, float splitAngleDegrees)
         : base(owner, inner)
     {

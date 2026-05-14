@@ -39,6 +39,7 @@ public class SpellCaster
         activeSpellIndex = 0;
 
         Spell starter = new SpellBuilder().BuildSpecific(this, "arcane_bolt", spellPower, Mathf.Max(1, GameManager.Instance.currentWave));
+        starter.lastProgressionPower = spellPower;
         spells.Add(starter);
     }
 
@@ -101,6 +102,9 @@ public class SpellCaster
             return false;
         }
 
+        // Initialize progression tracking for new spell
+        pendingSpell.GetBaseSpell().lastProgressionPower = spellPower;
+        
         spells.Add(pendingSpell);
         activeSpellIndex = spells.Count - 1;
         pendingSpell = null;
@@ -119,6 +123,9 @@ public class SpellCaster
             return false;
         }
 
+        // Initialize progression tracking for new spell
+        pendingSpell.GetBaseSpell().lastProgressionPower = spellPower;
+        
         spells[index] = pendingSpell;
         activeSpellIndex = index;
         pendingSpell = null;
@@ -131,29 +138,86 @@ public class SpellCaster
 
         for (int i = 0; i < spells.Count; i++)
         {
-            Spell oldSpell = spells[i];
-
-            if (oldSpell == null)
+            Spell currentSpell = spells[i];
+            if (currentSpell == null)
             {
-                Debug.LogError("Null spell in this list.");
+                Debug.LogError("Null spell in list.");
                 continue;
             }
 
-            if (string.IsNullOrEmpty(oldSpell.spellId))
+            // Get base spell ID (even if wrapped in modifiers)
+            Spell baseSpell = currentSpell.GetBaseSpell();
+            string baseSpellId = baseSpell.spellId;
+            
+            if (string.IsNullOrEmpty(baseSpellId))
             {
-                Debug.LogError("Spell missing spellId: " + oldSpell.spellName);
+                Debug.LogError("Spell missing spellId: " + currentSpell.spellName);
                 continue;
             }
 
-            Spell rebuilt =
-                builder.BuildSpecific(
-                    this,
-                    oldSpell.spellId,
-                    spellPower,
-                    Mathf.Max(1, GameManager.Instance.currentWave)
+            int oldPower = baseSpell.lastProgressionPower;
+            int newPower = spellPower;
+            
+            // If first progression or no prior tracking, initialize from power 0
+            if (oldPower == 0 && spellPower > 0)
+                oldPower = 0;
+
+            // Only apply gains if power actually increased
+            if (newPower > oldPower)
+            {
+                // Get pure base spell properties at OLD power
+                builder.GetBaseSpellProperties(
+                    baseSpellId, 
+                    oldPower, 
+                    1, 
+                    out int oldManaCost, 
+                    out int oldDamage, 
+                    out int oldSecondaryDamage,
+                    out float oldCooldown,
+                    out float oldProjectileSpeed,
+                    out float oldSecondaryProjectileSpeed
                 );
 
-            spells[i] = rebuilt;
+                // Get pure base spell properties at NEW power
+                builder.GetBaseSpellProperties(
+                    baseSpellId, 
+                    newPower, 
+                    1, 
+                    out int newManaCost, 
+                    out int newDamage, 
+                    out int newSecondaryDamage,
+                    out float newCooldown,
+                    out float newProjectileSpeed,
+                    out float newSecondaryProjectileSpeed
+                );
+
+                // Calculate additive gains
+                int manaCostGain = newManaCost - oldManaCost;
+                int damageGain = newDamage - oldDamage;
+                int secondaryDamageGain = newSecondaryDamage - oldSecondaryDamage;
+                float cooldownGain = newCooldown - oldCooldown;
+                float projectileSpeedGain = newProjectileSpeed - oldProjectileSpeed;
+                float secondaryProjectileSpeedGain = newSecondaryProjectileSpeed - oldSecondaryProjectileSpeed;
+
+                // Apply gains directly to CURRENT spell (preserves all modifiers)
+                currentSpell.manaCost = Mathf.Max(0, currentSpell.manaCost + manaCostGain);
+                currentSpell.damageAmount = Mathf.Max(1, currentSpell.damageAmount + damageGain);
+                if (currentSpell.secondaryDamageAmount > 0)
+                {
+                    currentSpell.secondaryDamageAmount = Mathf.Max(1, currentSpell.secondaryDamageAmount + secondaryDamageGain);
+                }
+                currentSpell.cooldown = Mathf.Max(0.05f, currentSpell.cooldown + cooldownGain);
+                currentSpell.projectileSpeed = Mathf.Max(0.1f, currentSpell.projectileSpeed + projectileSpeedGain);
+                if (currentSpell.secondaryProjectileSpeed > 0f)
+                {
+                    currentSpell.secondaryProjectileSpeed = Mathf.Max(0.1f, currentSpell.secondaryProjectileSpeed + secondaryProjectileSpeedGain);
+                }
+
+                // Update base spell's lastProgressionPower to prevent duplicate gains
+                baseSpell.lastProgressionPower = newPower;
+            }
+
+            spells[i] = currentSpell;
         }
     }
 

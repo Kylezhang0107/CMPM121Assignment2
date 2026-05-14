@@ -85,6 +85,7 @@ public class SpellBuilder
             spell.secondaryProjectileLifetime = EvaluateFloatOptional(data.secondary_projectile.lifetime, vars, -1f);
         }
 
+
         return spell;
     }
 
@@ -235,5 +236,28 @@ public class SpellBuilder
         }
 
         return RPNEvaluator.RPNEvaluator.Evaluatef(expression, vars);
+    }
+
+    // Helper method to get pure base spell properties without modifiers
+    public void GetBaseSpellProperties(string spellId, int power, int wave, out int manaCost, out int damage, out int secondaryDamage, out float cooldown, out float projectileSpeed, out float secondaryProjectileSpeed)
+    {
+        manaCost = 10;
+        damage = 10;
+        secondaryDamage = 0;
+        cooldown = 1f;
+        projectileSpeed = 10f;
+        secondaryProjectileSpeed = 0f;
+
+        if (!spells.TryGetValue(spellId, out SpellData data))
+            return;
+
+        Dictionary<string, int> vars = BuildVars(power, wave);
+
+        manaCost = EvaluateInt(data.mana_cost, vars, 10);
+        damage = EvaluateInt(data.damage != null ? data.damage.amount : null, vars, 10);
+        secondaryDamage = EvaluateIntOptional(data.secondary_damage, vars, 0);
+        cooldown = EvaluateFloat(data.cooldown, vars, 1f);
+        projectileSpeed = EvaluateFloat(data.projectile != null ? data.projectile.speed : null, vars, 10f);
+        secondaryProjectileSpeed = EvaluateFloat(data.secondary_projectile != null ? data.secondary_projectile.speed : null, vars, 0f);
     }
 }

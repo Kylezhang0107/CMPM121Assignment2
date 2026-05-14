@@ -38,6 +38,9 @@ public class Spell
     public SpellCaster owner;
     public Hittable.Team team;
 
+    // Track last applied progression power for accurate gain calculation
+    public int lastProgressionPower = 0;
+
     public Spell(SpellCaster owner)
     {
         this.owner = owner;
@@ -137,6 +140,7 @@ public class Spell
 
     public virtual void ApplyModifier(SpellData modifierData, int power = 0, int wave = 1)
     {
+
         float damageMultiplier = EvaluateFloatOptional(modifierData.damage_multiplier, power, wave, 1f);
         float manaMultiplier = EvaluateFloatOptional(modifierData.mana_multiplier, power, wave, 1f);
         float cooldownMultiplier = EvaluateFloatOptional(modifierData.cooldown_multiplier, power, wave, 1f);
