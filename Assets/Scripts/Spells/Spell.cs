@@ -6,6 +6,7 @@ public class Spell
 {
     // configurable fields -start
     public string spellName = "Bolt";
+    public string spellId;
     public string description = "";
 
     public int manaCost = 10;

@@ -113,6 +113,12 @@ public class EnemySpawner : MonoBehaviour
             GameManager.Instance.countdown--;
         }
         GameManager.Instance.state = GameManager.GameState.INWAVE;
+        
+        // for player progression
+        GameManager.Instance.player
+            .GetComponent<PlayerController>()
+            .ApplyWaveScaling(currentWave);
+
         GameManager.Instance.activeWave = currentWave;
         GameManager.Instance.waveEnemiesKilled = 0;
         int wave = currentWave;

@@ -28,29 +28,116 @@ public class PlayerController : MonoBehaviour
 
     public void StartLevel()
     {
-        spellcaster = new SpellCaster(125, 8, Hittable.Team.PLAYER);
-        StartCoroutine(spellcaster.ManaRegeneration());
-        
-        hp = new Hittable(100, Hittable.Team.PLAYER, gameObject);
-        hp.OnDeath += Die;
-        hp.team = Hittable.Team.PLAYER;
+        ApplyWaveScaling(1);
+    }
 
-        // tell UI elements what to show
+    public void ApplyWaveScaling(int wave)
+    {
+        Dictionary<string, int> vars =
+            new Dictionary<string, int>()
+            {
+                { "wave", wave }
+            };
+
+        // evaluate scaled stats
+        int maxHP = Mathf.RoundToInt(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
+                "95 wave 5 * +",
+                vars
+            )
+        );
+
+        int mana = Mathf.RoundToInt(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
+                "90 wave 10 * +",
+                vars
+            )
+        );
+
+        int manaRegen = Mathf.RoundToInt(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
+                "10 wave +",
+                vars
+            )
+        );
+
+        int power = Mathf.RoundToInt(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
+                "wave 10 *",
+                vars
+            )
+        );
+
+        int moveSpeed = Mathf.RoundToInt(
+            RPNEvaluator.RPNEvaluator.Evaluatef(
+                "5",
+                vars
+            )
+        );
+
+        // movement speed
+        speed = moveSpeed;
+
+        // HP setup
+        if (hp == null)
+        {
+            hp = new Hittable(
+                maxHP,
+                Hittable.Team.PLAYER,
+                gameObject
+            );
+
+            hp.OnDeath += Die;
+        }
+        else
+        {
+            // preserves health percentage
+            hp.SetMaxHP(maxHP);
+
+            // optional full heal each wave:
+            hp.hp = hp.max_hp;
+        }
+
+        // spellcaster setup
+        if (spellcaster == null)
+        {
+            spellcaster =
+                new SpellCaster(
+                    mana,
+                    manaRegen,
+                    power,
+                    Hittable.Team.PLAYER
+                );
+
+            StartCoroutine(
+                spellcaster.ManaRegeneration()
+            );
+        }
+        else
+        {
+            spellcaster.max_mana = mana;
+            spellcaster.mana = mana;
+            spellcaster.mana_reg = manaRegen;
+            spellcaster.spellPower = power;
+
+            // IMPORTANT:
+            // rebuild spells using new power
+            spellcaster.RebuildSpells();
+        }
+
+        // refresh UI
         healthui.SetHealth(hp);
         manaui.SetSpellCaster(spellcaster);
 
         if (spellUIContainer == null)
         {
-            spellUIContainer = FindFirstObjectByType<SpellUIContainer>();
+            spellUIContainer =
+                FindFirstObjectByType<SpellUIContainer>();
         }
 
         if (spellUIContainer != null)
         {
             spellUIContainer.SetSpellCaster(spellcaster);
-        }
-        else if (spellui != null)
-        {
-            spellui.SetSpell(spellcaster.ActiveSpell);
         }
     }
 
@@ -108,5 +195,4 @@ public class PlayerController : MonoBehaviour
         Debug.Log("You Lost!");
         GameManager.Instance.state = GameManager.GameState.GAMEOVER;
     }
-
 }

@@ -27,12 +27,12 @@ public class SpellCaster
         }
     }
 
-    public SpellCaster(int mana, int mana_reg, Hittable.Team team)
+    public SpellCaster(int mana, int mana_reg, int spellPower, Hittable.Team team)
     {
         this.mana = mana;
         this.max_mana = mana;
         this.mana_reg = mana_reg;
-        this.spellPower = 0;
+        this.spellPower = spellPower;
         this.team = team;
 
         spells = new List<Spell>();
@@ -123,6 +123,26 @@ public class SpellCaster
         activeSpellIndex = index;
         pendingSpell = null;
         return true;
+    }
+
+    public void RebuildSpells()
+    {
+        SpellBuilder builder = new SpellBuilder();
+
+        for (int i = 0; i < spells.Count; i++)
+        {
+            Spell oldSpell = spells[i];
+
+            Spell rebuilt =
+                builder.BuildSpecific(
+                    this,
+                    oldSpell.spellId,
+                    spellPower,
+                    Mathf.Max(1, GameManager.Instance.currentWave)
+                );
+
+            spells[i] = rebuilt;
+        }
     }
 
     public virtual IEnumerator Cast(Vector3 where, Vector3 target)

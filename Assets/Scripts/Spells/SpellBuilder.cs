@@ -52,6 +52,9 @@ public class SpellBuilder
             spell = new Spell(owner);
         }
 
+        // every spell stores id
+        spell.spellId = spellId;
+
         Dictionary<string, int> vars = BuildVars(power, wave);
 
         spell.spellName = data.name;
