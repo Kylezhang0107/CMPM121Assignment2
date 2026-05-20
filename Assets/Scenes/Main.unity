@@ -568,8 +568,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889e30827d3de8847b0caf6a2d04eb83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spellNameText: {fileID: 0}
+  spellDescriptionText: {fileID: 0}
+  spellIconImage: {fileID: 0}
+  acceptButton: {fileID: 0}
+  declineButton: {fileID: 0}
   rewardUI: {fileID: 1709288111}
   endUI: {fileID: 1125433521}
+  waveLabel: {fileID: 0}
 --- !u!4 &220180078
 Transform:
   m_ObjectHideFlags: 0
@@ -666,7 +672,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1500572800, guid: e0ba5a7a2ca92e643ad58fc85d241001, type: 3}
+  m_Sprite: {fileID: 325875113, guid: e0ba5a7a2ca92e643ad58fc85d241001, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1919,7 +1925,6 @@ MonoBehaviour:
   - {fileID: 2073311049}
   - {fileID: 1577913788}
   - {fileID: 587991943}
-  menuText: {fileID: 0}
 --- !u!1 &532755679
 GameObject:
   m_ObjectHideFlags: 0
@@ -5548,6 +5553,7 @@ MonoBehaviour:
   healthui: {fileID: 765025204}
   manaui: {fileID: 71109453}
   spellui: {fileID: 2085212185}
+  spellUIContainer: {fileID: 0}
   speed: 5
   unit: {fileID: 0}
 --- !u!4 &1718273953
