@@ -3,9 +3,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Text;
+using System.Collections.Generic;
 
 public class RewardScreenManager : MonoBehaviour
 {
+    private class RelicChoiceWidget
+    {
+        public GameObject root;
+        public Image icon;
+        public TextMeshProUGUI label;
+        public UnityEngine.UI.Button takeButton;
+    }
+
     // for spell assignment
     public static RewardScreenManager Instance;
     public TextMeshProUGUI spellNameText;
@@ -24,6 +33,10 @@ public class RewardScreenManager : MonoBehaviour
     private Image spellNameCard;
     private Image spellDescriptionCard;
     private ScrollRect spellDescriptionScroll;
+    private readonly List<RelicChoiceWidget> relicChoiceWidgets = new List<RelicChoiceWidget>();
+    private readonly List<PlayerController.RelicData> pendingRelicChoices = new List<PlayerController.RelicData>();
+    private bool relicTakenThisReward;
+    private bool spellAcceptedThisReward;
 
     private void Awake()
     {
@@ -142,6 +155,8 @@ public class RewardScreenManager : MonoBehaviour
                     new Vector2(0f, -435f), new Vector2(170f, 42f), "Accept Spell", font);
             }
             acceptButton.onClick.AddListener(OnAcceptSpell);
+
+            EnsureRelicChoiceWidgets(font);
         }
 
         // Decline button wires to the existing "Next Wave" button if present
@@ -344,6 +359,14 @@ public class RewardScreenManager : MonoBehaviour
             return;
         }
 
+        spellAcceptedThisReward = false;
+        relicTakenThisReward = false;
+        SetAcceptButtonLabel("Accept Spell");
+        if (acceptButton != null)
+        {
+            acceptButton.interactable = true;
+        }
+
         caster.pendingSpell =
             new SpellBuilder().BuildRandom(
                 caster,
@@ -385,6 +408,16 @@ public class RewardScreenManager : MonoBehaviour
             bool inventoryFull = caster.SpellCount >= SpellCaster.MaxEquippedSpells;
             acceptButton.gameObject.SetActive(!inventoryFull);
         }
+
+        bool isRelicWave = GameManager.Instance.currentWave >= 3 && GameManager.Instance.currentWave % 3 == 0;
+        if (isRelicWave)
+        {
+            ShowRelicChoices(playerController.GetRelicChoices(3));
+        }
+        else
+        {
+            HideRelicChoices();
+        }
     }
 
     public void OnAcceptSpell()
@@ -401,6 +434,11 @@ public class RewardScreenManager : MonoBehaviour
         }
 
         SpellCaster caster = playerController.spellcaster;
+        if (spellAcceptedThisReward)
+        {
+            return;
+        }
+
         if (caster.pendingSpell != null)
         {
             if (caster.SpellCount >= SpellCaster.MaxEquippedSpells)
@@ -412,7 +450,12 @@ public class RewardScreenManager : MonoBehaviour
             if (caster.AcceptPendingSpell())
             {
                 Debug.Log("Spell accepted: " + caster.ActiveSpell.GetName());
-                rewardUI.SetActive(false);
+                spellAcceptedThisReward = true;
+                SetAcceptButtonLabel("Spell Accepted");
+                if (acceptButton != null)
+                {
+                    acceptButton.interactable = false;
+                }
                 return;
             }
 
@@ -438,6 +481,157 @@ public class RewardScreenManager : MonoBehaviour
         Debug.Log("Spell declined!");
 
         rewardUI.SetActive(false);
+    }
+
+    private void SetAcceptButtonLabel(string label)
+    {
+        if (acceptButton == null)
+        {
+            return;
+        }
+
+        TextMeshProUGUI text = acceptButton.GetComponentInChildren<TextMeshProUGUI>(true);
+        if (text != null)
+        {
+            text.text = label;
+        }
+    }
+
+    private void EnsureRelicChoiceWidgets(TMP_FontAsset font)
+    {
+        if (rewardUI == null || relicChoiceWidgets.Count > 0)
+        {
+            return;
+        }
+
+        Transform existingRoot = rewardUI.transform.Find("RelicChoices");
+        GameObject rootObj = existingRoot != null ? existingRoot.gameObject : new GameObject("RelicChoices");
+        rootObj.transform.SetParent(rewardUI.transform, false);
+
+        RectTransform rootRT = rootObj.GetComponent<RectTransform>();
+        if (rootRT == null)
+        {
+            rootRT = rootObj.AddComponent<RectTransform>();
+        }
+        SetRectTransform(rootRT, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -605f), new Vector2(760f, 185f));
+
+        float[] xOffsets = { -250f, 0f, 250f };
+        for (int i = 0; i < 3; ++i)
+        {
+            RelicChoiceWidget widget = new RelicChoiceWidget();
+            widget.root = new GameObject($"RelicChoice{i}");
+            widget.root.transform.SetParent(rootObj.transform, false);
+
+            RectTransform itemRT = widget.root.AddComponent<RectTransform>();
+            SetRectTransform(itemRT, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(xOffsets[i], 0f), new Vector2(220f, 170f));
+
+            GameObject iconObj = new GameObject("Icon");
+            iconObj.transform.SetParent(widget.root.transform, false);
+            RectTransform iconRT = iconObj.AddComponent<RectTransform>();
+            SetRectTransform(iconRT, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -20f), new Vector2(44f, 44f));
+            widget.icon = iconObj.AddComponent<Image>();
+            widget.icon.color = Color.white;
+
+            widget.label = CreateTMPLabel($"RelicLabel{i}", widget.root.transform, new Vector2(0f, -78f), new Vector2(210f, 72f), 16f, font);
+            widget.label.alignment = TextAlignmentOptions.Center;
+            widget.label.textWrappingMode = TextWrappingModes.Normal;
+
+            widget.takeButton = CreateButton($"TakeRelic{i}", widget.root.transform, new Vector2(0f, -145f), new Vector2(120f, 38f), "Take", font);
+            int optionIndex = i;
+            widget.takeButton.onClick.AddListener(() => OnTakeRelic(optionIndex));
+
+            relicChoiceWidgets.Add(widget);
+        }
+
+        rootObj.SetActive(false);
+    }
+
+    private void ShowRelicChoices(List<PlayerController.RelicData> relicChoices)
+    {
+        pendingRelicChoices.Clear();
+        if (relicChoices != null)
+        {
+            pendingRelicChoices.AddRange(relicChoices);
+        }
+
+        for (int i = 0; i < relicChoiceWidgets.Count; ++i)
+        {
+            RelicChoiceWidget widget = relicChoiceWidgets[i];
+            bool hasRelic = i < pendingRelicChoices.Count;
+            widget.root.SetActive(hasRelic);
+            if (!hasRelic)
+            {
+                continue;
+            }
+
+            PlayerController.RelicData relic = pendingRelicChoices[i];
+            widget.label.text = NormalizeUIText(relic.GetDescription());
+            widget.takeButton.interactable = true;
+
+            TextMeshProUGUI btnText = widget.takeButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (btnText != null)
+            {
+                btnText.text = "Take";
+            }
+
+            if (widget.icon != null && GameManager.Instance.relicIconManager != null)
+            {
+                GameManager.Instance.relicIconManager.PlaceSprite(relic.sprite, widget.icon);
+            }
+        }
+
+        if (relicChoiceWidgets.Count > 0 && relicChoiceWidgets[0].root != null)
+        {
+            relicChoiceWidgets[0].root.transform.parent.gameObject.SetActive(pendingRelicChoices.Count > 0);
+        }
+    }
+
+    private void HideRelicChoices()
+    {
+        pendingRelicChoices.Clear();
+        if (relicChoiceWidgets.Count > 0 && relicChoiceWidgets[0].root != null)
+        {
+            relicChoiceWidgets[0].root.transform.parent.gameObject.SetActive(false);
+        }
+    }
+
+    private void OnTakeRelic(int optionIndex)
+    {
+        if (relicTakenThisReward || optionIndex < 0 || optionIndex >= pendingRelicChoices.Count)
+        {
+            return;
+        }
+
+        if (GameManager.Instance.player == null)
+        {
+            return;
+        }
+
+        PlayerController playerController = GameManager.Instance.player.GetComponent<PlayerController>();
+        if (playerController == null)
+        {
+            return;
+        }
+
+        PlayerController.RelicData pickedRelic = pendingRelicChoices[optionIndex];
+        playerController.GrantRelic(pickedRelic);
+        relicTakenThisReward = true;
+
+        for (int i = 0; i < relicChoiceWidgets.Count; ++i)
+        {
+            RelicChoiceWidget widget = relicChoiceWidgets[i];
+            if (!widget.root.activeSelf)
+            {
+                continue;
+            }
+
+            widget.takeButton.interactable = false;
+            TextMeshProUGUI buttonText = widget.takeButton.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (buttonText != null)
+            {
+                buttonText.text = i == optionIndex ? "Taken" : "Locked";
+            }
+        }
     }
 
     private void EnsureDescriptionScrollArea()
