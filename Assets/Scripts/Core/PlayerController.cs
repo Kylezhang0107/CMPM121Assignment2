@@ -59,6 +59,13 @@ public class PlayerController : MonoBehaviour
     private readonly HashSet<string> ownedRelicNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public event Action<RelicData> OnRelicGranted;
 
+    // bonus fields
+    private int relicBonusSpellPower = 0;
+    private float stationaryTimer = 0f;
+
+    // active relic tracker
+    private readonly List<RelicData> activeTemporaryRelics = new List<RelicData>();
+
     public int RelicCount => grantedRelics.Count;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -68,11 +75,17 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadRelicCatalog();
         EventBus.Instance.OnDamage += OnDamageEvent;
+        EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
+        EventBus.Instance.OnSpellCast += OnSpellCastEvent;
+        EventBus.Instance.OnPlayerMove += OnPlayerMoveEvent;
     }
 
     private void OnDestroy()
     {
         EventBus.Instance.OnDamage -= OnDamageEvent;
+        EventBus.Instance.OnEnemyKilled -= OnEnemyKilledEvent;
+        EventBus.Instance.OnSpellCast -= OnSpellCastEvent;
+        EventBus.Instance.OnPlayerMove -= OnPlayerMoveEvent;
     }
 
     private void LoadRelicCatalog()
@@ -173,7 +186,108 @@ public class PlayerController : MonoBehaviour
     public bool IsRelicActiveAt(int index)
     {
         // Current implemented relic effects are passive/always-on while owned.
-        return GetRelicAt(index) != null;
+        RelicData relic = GetRelicAt(index);
+
+        if (relic == null)
+        {
+            return false;
+        }
+
+        return activeTemporaryRelics.Contains(relic);
+    }
+
+    public void TriggerRelics(
+        string triggerType,
+        Damage damage = null,
+        Hittable target = null
+    )
+    {
+        foreach (RelicData relic in grantedRelics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                relic.trigger?.type,
+                triggerType,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            ApplyRelicEffect(relic);
+        }
+    }
+
+    private void ApplyRelicEffect(RelicData relic)
+    {
+        if (relic == null || relic.effect == null)
+        {
+            return;
+        }
+
+        string effectType =
+            relic.effect.type?.ToLower();
+
+        switch (effectType)
+        {
+            case "gain-mana":
+            {
+                int manaGain =
+                    Mathf.RoundToInt(
+                        RPNEvaluator.RPNEvaluator.Evaluatef(
+                            relic.effect.amount ?? "0",
+                            new Dictionary<string, int>()
+                            {
+                                { "wave", GameManager.Instance.currentWave }
+                            }
+                        )
+                    );
+
+                spellcaster.mana =
+                    Mathf.Min(
+                        spellcaster.max_mana,
+                        spellcaster.mana + manaGain
+                    );
+
+                break;
+            }
+
+            case "gain-spellpower":
+            {
+                if (activeTemporaryRelics.Contains(relic))
+                {
+                    return;
+                }
+
+                int amount =
+                    Mathf.RoundToInt(
+                        RPNEvaluator.RPNEvaluator.Evaluatef(
+                            relic.effect.amount ?? "0",
+                            new Dictionary<string, int>()
+                            {
+                                { "wave", GameManager.Instance.currentWave }
+                            }
+                        )
+                    );
+
+                relicBonusSpellPower += amount;
+
+                spellcaster.spellPower += amount;
+
+                spellcaster.RebuildSpells();
+
+                // temporary relics
+                if (!string.IsNullOrEmpty(relic.effect.until))
+                {
+                    activeTemporaryRelics.Add(relic);
+                }
+
+                break;
+            }
+        }
     }
 
     private void OnDamageEvent(Vector3 where, Damage damage, Hittable target)
@@ -183,29 +297,28 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        foreach (RelicData relic in relicCatalog)
+        TriggerRelics(
+            "take-damage",
+            damage,
+            target
+        );
+    }
+
+    private void OnEnemyKilledEvent(GameObject enemy)
+    {
+        TriggerRelics("on-kill");
+    }
+
+    private void OnSpellCastEvent(Spell spell)
+    {
+        RemoveTemporaryRelics("cast-spell");
+    }
+
+    private void OnPlayerMoveEvent(Vector2 movement)
+    {
+        if (movement.sqrMagnitude > 0.01f)
         {
-            if (relic == null || !ownedRelicNames.Contains(relic.name))
-            {
-                continue;
-            }
-
-            if (!string.Equals(relic.trigger?.type, "take-damage", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!string.Equals(relic.effect?.type, "gain-mana", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            if (!int.TryParse(relic.effect.amount, out int manaGain))
-            {
-                continue;
-            }
-
-            spellcaster.mana = Mathf.Min(spellcaster.max_mana, spellcaster.mana + manaGain);
+            RemoveTemporaryRelics("move");
         }
     }
 
@@ -301,7 +414,7 @@ public class PlayerController : MonoBehaviour
             spellcaster.max_mana = mana;
             spellcaster.mana = mana;
             spellcaster.mana_reg = manaRegen;
-            spellcaster.spellPower = power;
+            spellcaster.spellPower = power + relicBonusSpellPower;
 
             // IMPORTANT:
             // rebuild spells using new power
@@ -327,6 +440,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        HandleStandStillRelics();
+
         if (spellcaster == null || Keyboard.current == null)
         {
             return;
@@ -358,6 +473,88 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void HandleStandStillRelics()
+    {
+        if (unit == null)
+        {
+            return;
+        }
+
+        if (unit.movement.sqrMagnitude < 0.01f)
+        {
+            stationaryTimer += Time.deltaTime;
+        }
+        else
+        {
+            stationaryTimer = 0f;
+
+            RemoveTemporaryRelics("move");
+        }
+
+        foreach (RelicData relic in grantedRelics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                relic.trigger?.type,
+                "stand-still",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            float required =
+                float.Parse(relic.trigger.amount);
+
+            if (stationaryTimer >= required
+                && !activeTemporaryRelics.Contains(relic))
+            {
+                ApplyRelicEffect(relic);
+            }
+        }
+    }
+
+    private void RemoveTemporaryRelics(string untilType)
+    {
+        for (int i = activeTemporaryRelics.Count - 1; i >= 0; i--)
+        {
+            RelicData relic = activeTemporaryRelics[i];
+
+            if (!string.Equals(
+                relic.effect.until,
+                untilType,
+                StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (relic.effect.type == "gain-spellpower")
+            {
+                int amount =
+                    Mathf.RoundToInt(
+                        RPNEvaluator.RPNEvaluator.Evaluatef(
+                            relic.effect.amount ?? "0",
+                            new Dictionary<string, int>()
+                            {
+                                { "wave", GameManager.Instance.currentWave }
+                            }
+                        )
+                    );
+
+                relicBonusSpellPower -= amount;
+
+                spellcaster.spellPower -= amount;
+
+                spellcaster.RebuildSpells();
+            }
+
+            activeTemporaryRelics.RemoveAt(i);
+        }
+    }
+
     void OnAttack(InputValue value)
     {
         if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
@@ -365,12 +562,19 @@ public class PlayerController : MonoBehaviour
         Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(mouseScreen);
         mouseWorld.z = 0;
         StartCoroutine(spellcaster.Cast(transform.position, mouseWorld));
+        EventBus.Instance.SpellCast(
+            spellcaster.ActiveSpell
+        );
+        RemoveTemporaryRelics("cast-spell");
     }
 
     void OnMove(InputValue value)
     {
         if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
         unit.movement = value.Get<Vector2>()*speed;
+        EventBus.Instance.PlayerMove(
+            unit.movement
+        );
     }
 
     void Die()

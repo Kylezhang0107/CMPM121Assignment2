@@ -46,7 +46,13 @@ public class GameManager
     }
     public void RemoveEnemy(GameObject enemy)
     {
+        if (player != null)
+        {
+            player.GetComponent<PlayerController>()
+                .TriggerRelics("on-kill");
+        }
         enemies.Remove(enemy);
+        EventBus.Instance.EnemyKilled(enemy);
         waveEnemiesKilled++;
     }
 
