@@ -273,11 +273,34 @@ public class PlayerController : MonoBehaviour
                         )
                     );
 
+                Debug.Log(
+                    "[RELIC ACTIVATED] " +
+                    relic.name +
+                    " | +" +
+                    amount +
+                    " spellpower"
+                );
+
                 relicBonusSpellPower += amount;
 
                 spellcaster.spellPower += amount;
 
                 spellcaster.RebuildSpells();
+
+                Debug.Log(
+                    "[SPELLPOWER] Current spellpower = " +
+                    spellcaster.spellPower
+                );
+
+                if (spellcaster.ActiveSpell != null)
+                {
+                    Debug.Log(
+                        "[SPELL DAMAGE] " +
+                        spellcaster.ActiveSpell.GetName() +
+                        " = " +
+                        spellcaster.ActiveSpell.GetDamage()
+                    );
+                }
 
                 // temporary relics
                 if (!string.IsNullOrEmpty(relic.effect.until))
@@ -546,7 +569,9 @@ public class PlayerController : MonoBehaviour
 
                 relicBonusSpellPower -= amount;
 
-                spellcaster.spellPower -= amount;
+                relicBonusSpellPower = Mathf.Max(0, relicBonusSpellPower);
+
+                spellcaster.spellPower = GameManager.Instance.currentWave * 10 + relicBonusSpellPower;
 
                 spellcaster.RebuildSpells();
             }
