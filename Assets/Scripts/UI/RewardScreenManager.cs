@@ -35,6 +35,8 @@ public class RewardScreenManager : MonoBehaviour
     private ScrollRect spellDescriptionScroll;
     private readonly List<RelicChoiceWidget> relicChoiceWidgets = new List<RelicChoiceWidget>();
     private readonly List<PlayerController.RelicData> pendingRelicChoices = new List<PlayerController.RelicData>();
+    private readonly List<GameObject> externalWaveHudObjects = new List<GameObject>();
+    private bool waveHudCached;
     private bool relicTakenThisReward;
     private bool spellAcceptedThisReward;
 
@@ -45,6 +47,12 @@ public class RewardScreenManager : MonoBehaviour
 
     void Start()
     {
+        if (rewardUI != null && waveLabel != null && !waveLabel.transform.IsChildOf(rewardUI.transform))
+        {
+            // Prevent accidentally binding the HUD wave label instead of reward panel label.
+            waveLabel = null;
+        }
+
         // Find the Wave label inside the reward panel
         if (waveLabel == null && rewardUI != null)
         {
@@ -56,22 +64,42 @@ public class RewardScreenManager : MonoBehaviour
                     break;
                 }
             }
+
+            // Some scenes still use a legacy child named "Text" for the wave title.
+            if (waveLabel == null)
+            {
+                foreach (TextMeshProUGUI tmp in rewardUI.GetComponentsInChildren<TextMeshProUGUI>(true))
+                {
+                    if (tmp.gameObject.name == "Text")
+                    {
+                        waveLabel = tmp;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (waveLabel != null)
+        {
+            NormalizeWaveLabelLayout(waveLabel);
         }
 
         if (rewardUI != null)
         {
             TMP_FontAsset font = waveLabel != null ? waveLabel.font : null;
 
+            NormalizeRewardPanelLayout();
+
             // Stats label (enemies killed this wave)
             statsLabel = CreateTMPLabel("StatsLabel", rewardUI.transform,
-                new Vector2(0f, -120f), new Vector2(300f, 36f), 22, font);
+                new Vector2(0f, -90f), new Vector2(300f, 36f), 22, font);
             statsLabel.alignment = TextAlignmentOptions.Center;
             statsLabel.overflowMode = TextOverflowModes.Ellipsis;
 
             spellNameCard = EnsurePanelImage(
                 "SpellNameCard",
                 rewardUI.transform,
-                new Vector2(0f, -165f),
+                new Vector2(0f, -130f),
                 new Vector2(320f, 52f),
                 new Color(1f, 1f, 1f, 0.16f)
             );
@@ -79,7 +107,7 @@ public class RewardScreenManager : MonoBehaviour
             spellDescriptionCard = EnsurePanelImage(
                 "SpellDescriptionCard",
                 rewardUI.transform,
-                new Vector2(0f, -320f),
+                new Vector2(0f, -280f),
                 new Vector2(320f, 132f),
                 new Color(1f, 1f, 1f, 0.1f)
             );
@@ -90,21 +118,15 @@ public class RewardScreenManager : MonoBehaviour
                 GameObject iconObj = new GameObject("SpellIcon");
                 iconObj.transform.SetParent(rewardUI.transform, false);
                 RectTransform irt = iconObj.AddComponent<RectTransform>();
-                SetRectTransform(irt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -190f), new Vector2(64f, 64f));
+                SetRectTransform(irt, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -160f), new Vector2(64f, 64f));
                 spellIconImage = iconObj.AddComponent<Image>();
                 spellIconImage.color = Color.white;
-            }
-            else
-            {
-                SetRectTransform(spellIconImage.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -190f), new Vector2(64f, 64f));
             }
 
             // Spell name label
             if (spellNameText == null)
                 spellNameText = CreateTMPLabel("SpellNameLabel", rewardUI.transform,
-                    new Vector2(0f, -165f), new Vector2(300f, 44f), 21, font);
-            else
-                SetRectTransform(spellNameText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -165f), new Vector2(300f, 44f));
+                    new Vector2(0f, -130f), new Vector2(300f, 44f), 21, font);
 
             spellNameText.alignment = TextAlignmentOptions.Left;
             spellNameText.enableAutoSizing = true;
@@ -119,11 +141,7 @@ public class RewardScreenManager : MonoBehaviour
             if (spellDescriptionText == null)
             {
                 spellDescriptionText = CreateTMPLabel("SpellDescLabel", rewardUI.transform,
-                    new Vector2(0f, -320f), new Vector2(300f, 112f), 17, font);
-            }
-            else
-            {
-                SetRectTransform(spellDescriptionText.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -320f), new Vector2(300f, 112f));
+                    new Vector2(0f, -280f), new Vector2(300f, 112f), 17, font);
             }
 
             spellDescriptionText.alignment = TextAlignmentOptions.TopLeft;
@@ -152,11 +170,12 @@ public class RewardScreenManager : MonoBehaviour
             if (acceptButton == null)
             {
                 acceptButton = CreateButton("AcceptButton", rewardUI.transform,
-                    new Vector2(0f, -435f), new Vector2(170f, 42f), "Accept Spell", font);
+                    new Vector2(0f, -370f), new Vector2(170f, 42f), "Accept Spell", font);
             }
             acceptButton.onClick.AddListener(OnAcceptSpell);
 
             EnsureRelicChoiceWidgets(font);
+            NormalizePrimaryButtonsLayout();
         }
 
         // Decline button wires to the existing "Next Wave" button if present
@@ -300,6 +319,38 @@ public class RewardScreenManager : MonoBehaviour
         rt.sizeDelta = size;
     }
 
+    private void NormalizeWaveLabelLayout(TextMeshProUGUI label)
+    {
+        if (label == null)
+        {
+            return;
+        }
+
+        RectTransform rt = label.rectTransform;
+        if (rt == null)
+        {
+            return;
+        }
+
+        bool stretched = rt.anchorMin != rt.anchorMax;
+        if (stretched)
+        {
+            // Legacy scene setup sometimes stretches this label vertically, causing overlap.
+            SetRectTransform(
+                rt,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -60f),
+                new Vector2(360f, 52f)
+            );
+        }
+
+        label.alignment = TextAlignmentOptions.Center;
+        label.overflowMode = TextOverflowModes.Overflow;
+        label.textWrappingMode = TextWrappingModes.NoWrap;
+    }
+
     private GameManager.GameState lastKnownState = (GameManager.GameState)(-1);
 
     void Update()
@@ -310,6 +361,7 @@ public class RewardScreenManager : MonoBehaviour
 
         if (state == GameManager.GameState.GAMEOVER)
         {
+            SetExternalWaveHudVisible(false);
             if (endLabel != null)
                 endLabel.text = GameManager.Instance.playerWon ? "You Win!" : "You Lose!";
             if (endUI != null) endUI.SetActive(true);
@@ -317,6 +369,7 @@ public class RewardScreenManager : MonoBehaviour
         }
         else if (state == GameManager.GameState.WAVEEND)
         {
+            SetExternalWaveHudVisible(false);
             if (waveLabel != null)
                 waveLabel.text = $"Wave {GameManager.Instance.currentWave} Completed";
             if (statsLabel != null)
@@ -332,6 +385,7 @@ public class RewardScreenManager : MonoBehaviour
         }
         else
         {
+            SetExternalWaveHudVisible(true);
             if (rewardUI != null) rewardUI.SetActive(false);
             if (endUI != null) endUI.SetActive(false);
         }
@@ -497,6 +551,105 @@ public class RewardScreenManager : MonoBehaviour
         }
     }
 
+    private void NormalizeRewardPanelLayout()
+    {
+        if (rewardUI == null)
+        {
+            return;
+        }
+
+        RectTransform rewardRT = rewardUI.GetComponent<RectTransform>();
+        if (rewardRT == null)
+        {
+            return;
+        }
+
+        // Keep reward panel at a stable centered size regardless of aspect ratio.
+        SetRectTransform(
+            rewardRT,
+            new Vector2(0.5f, 0.5f),
+            new Vector2(0.5f, 0.5f),
+            new Vector2(0.5f, 0.5f),
+            Vector2.zero,
+            new Vector2(1080f, 630f)
+        );
+    }
+
+    private void NormalizePrimaryButtonsLayout()
+    {
+        if (acceptButton != null)
+        {
+            RectTransform acceptRT = acceptButton.GetComponent<RectTransform>();
+            SetRectTransform(
+                acceptRT,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -370f),
+                new Vector2(170f, 42f)
+            );
+        }
+
+        if (declineButton != null)
+        {
+            RectTransform declineRT = declineButton.GetComponent<RectTransform>();
+            SetRectTransform(
+                declineRT,
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 1f),
+                new Vector2(0.5f, 0.5f),
+                new Vector2(0f, -370f),
+                new Vector2(170f, 42f)
+            );
+        }
+    }
+
+    private void CacheExternalWaveHudObjects()
+    {
+        if (waveHudCached)
+        {
+            return;
+        }
+
+        externalWaveHudObjects.Clear();
+        WaveLabelController[] waveHudControllers = FindObjectsByType<WaveLabelController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (WaveLabelController controller in waveHudControllers)
+        {
+            if (controller == null)
+            {
+                continue;
+            }
+
+            Transform t = controller.transform;
+            if (rewardUI != null && t.IsChildOf(rewardUI.transform))
+            {
+                continue;
+            }
+
+            externalWaveHudObjects.Add(controller.gameObject);
+        }
+
+        waveHudCached = true;
+    }
+
+    private void SetExternalWaveHudVisible(bool visible)
+    {
+        if (!waveHudCached)
+        {
+            CacheExternalWaveHudObjects();
+        }
+
+        foreach (GameObject hudObj in externalWaveHudObjects)
+        {
+            if (hudObj == null)
+            {
+                continue;
+            }
+
+            hudObj.SetActive(visible);
+        }
+    }
+
     private void EnsureRelicChoiceWidgets(TMP_FontAsset font)
     {
         if (rewardUI == null || relicChoiceWidgets.Count > 0)
@@ -506,14 +659,20 @@ public class RewardScreenManager : MonoBehaviour
 
         Transform existingRoot = rewardUI.transform.Find("RelicChoices");
         GameObject rootObj = existingRoot != null ? existingRoot.gameObject : new GameObject("RelicChoices");
-        rootObj.transform.SetParent(rewardUI.transform, false);
+        if (existingRoot == null)
+        {
+            rootObj.transform.SetParent(rewardUI.transform, false);
+        }
 
         RectTransform rootRT = rootObj.GetComponent<RectTransform>();
         if (rootRT == null)
         {
             rootRT = rootObj.AddComponent<RectTransform>();
         }
-        SetRectTransform(rootRT, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -605f), new Vector2(760f, 185f));
+        if (existingRoot == null)
+        {
+            SetRectTransform(rootRT, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -520f), new Vector2(760f, 185f));
+        }
 
         float[] xOffsets = { -250f, 0f, 250f };
         for (int i = 0; i < 3; ++i)
@@ -536,7 +695,7 @@ public class RewardScreenManager : MonoBehaviour
             widget.label.alignment = TextAlignmentOptions.Center;
             widget.label.textWrappingMode = TextWrappingModes.Normal;
 
-            widget.takeButton = CreateButton($"TakeRelic{i}", widget.root.transform, new Vector2(0f, -145f), new Vector2(120f, 38f), "Take", font);
+            widget.takeButton = CreateButton($"TakeRelic{i}", widget.root.transform, new Vector2(0f, -130f), new Vector2(120f, 38f), "Take", font);
             int optionIndex = i;
             widget.takeButton.onClick.AddListener(() => OnTakeRelic(optionIndex));
 
@@ -663,7 +822,7 @@ public class RewardScreenManager : MonoBehaviour
             new Vector2(0.5f, 1f),
             new Vector2(0.5f, 1f),
             new Vector2(0.5f, 0.5f),
-            new Vector2(0f, -320f),
+            new Vector2(0f, -280f),
             new Vector2(300f, 112f)
         );
 
