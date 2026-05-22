@@ -155,6 +155,22 @@ public class SpellCaster
                 continue;
             }
 
+            Spell rebuilt = builder.BuildSpecific(
+                this,
+                baseSpellId,
+                spellPower,
+                Mathf.Max(
+                    1,
+                    GameManager.Instance.currentWave
+                )
+            );
+
+            rebuilt.lastProgressionPower = spellPower;
+
+            spells[i] = rebuilt;
+
+
+            /*
             int oldPower = baseSpell.lastProgressionPower;
             int newPower = spellPower;
             
@@ -218,6 +234,7 @@ public class SpellCaster
             }
 
             spells[i] = currentSpell;
+            */
         }
     }
 

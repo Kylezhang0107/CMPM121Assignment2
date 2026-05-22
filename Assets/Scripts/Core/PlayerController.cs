@@ -246,11 +246,25 @@ public class PlayerController : MonoBehaviour
                         )
                     );
 
+                int oldMana = spellcaster.mana;
+
                 spellcaster.mana =
                     Mathf.Min(
                         spellcaster.max_mana,
                         spellcaster.mana + manaGain
                     );
+
+                Debug.Log(
+                    "[GREEN GEM/CURSED SCROLL]" +
+                    relic.name +
+                    " restored " +
+                    (spellcaster.mana - oldMana) +
+                    " mana. " +
+                    "Current Mana: " +
+                    spellcaster.mana +
+                    "/" +
+                    spellcaster.max_mana
+                );
 
                 break;
             }
@@ -590,7 +604,7 @@ public class PlayerController : MonoBehaviour
         EventBus.Instance.SpellCast(
             spellcaster.ActiveSpell
         );
-        RemoveTemporaryRelics("cast-spell");
+        // RemoveTemporaryRelics("cast-spell");
     }
 
     void OnMove(InputValue value)

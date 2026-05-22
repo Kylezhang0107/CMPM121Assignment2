@@ -46,6 +46,11 @@ public class Spell
         this.owner = owner;
     }
 
+    public virtual Spell GetBaseSpell()
+    {
+        return this;
+    }
+
     public virtual string GetName()
     {
         return spellName;

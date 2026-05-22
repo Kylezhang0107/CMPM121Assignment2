@@ -55,6 +55,8 @@ public class SpellBuilder
         // every spell stores id
         spell.spellId = spellId;
 
+        spell.lastProgressionPower = power;
+
         Dictionary<string, int> vars = BuildVars(power, wave);
 
         spell.spellName = data.name;
