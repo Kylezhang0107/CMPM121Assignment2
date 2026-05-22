@@ -53,5 +53,46 @@
             "type": "gain-mana",
             "amount": "25"
         }
+    },
+    {
+        "name": "Mana Orb",
+        "sprite": 4,
+        "trigger": {
+            "description": "Whenever you deal damage to an enemy",
+            "type": "deal-damage"
+        },
+        "effect": {
+            "description": "you gain 1 mana.",
+            "type": "gain-mana",
+            "amount": "1"
+        }
+    },
+    {
+        "name": "Steel Heart",
+        "sprite": 5,
+        "trigger": {
+            "description": "Whenever you finish a wave",
+            "type": "wave-complete"
+        },
+        "effect": {
+            "description": "you gain 10 max hp.",
+            "type": "gain-maxhp",
+            "amount": "10"
+        }
+    },
+    {
+        "name": "Arcane Boots",
+        "sprite": 6,
+        "trigger": {
+            "description": "After moving 50 units",
+            "type": "distance-moved",
+            "amount": "50"
+        },
+        "effect": {
+            "description": "your next spell gains 50 additional spellpower.",
+            "type": "gain-spellpower",
+            "amount": "50",
+            "until": "cast-spell"
+        }
     }
 ]
