@@ -42,6 +42,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    [Serializable]
+    public class CharacterClassData
+    {
+        public int sprite;
+        public string health;
+        public string mana;
+        public string mana_regeneration;
+        public string spellpower;
+        public string speed;
+    }
+
     public Hittable hp;
     public HealthBar healthui;
     public ManaBar manaui;
@@ -56,8 +67,10 @@ public class PlayerController : MonoBehaviour
 
     private readonly List<RelicData> relicCatalog = new List<RelicData>();
     private readonly List<RelicData> grantedRelics = new List<RelicData>();
+    private readonly Dictionary<string, CharacterClassData> characterClasses = new Dictionary<string, CharacterClassData>(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<string> ownedRelicNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     public event Action<RelicData> OnRelicGranted;
+    private string selectedCharacterClass = "mage";
 
     // bonus fields
     private int relicBonusSpellPower = 0;
@@ -73,6 +86,7 @@ public class PlayerController : MonoBehaviour
     {
         unit = GetComponent<Unit>();
         GameManager.Instance.player = gameObject;
+        LoadCharacterClasses();
         LoadRelicCatalog();
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
@@ -111,6 +125,71 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogError($"Failed to parse relics.json: {e.Message}");
         }
+    }
+
+    private void LoadCharacterClasses()
+    {
+        characterClasses.Clear();
+
+        TextAsset classFile = Resources.Load<TextAsset>("classes");
+        if (classFile == null)
+        {
+            Debug.LogError("Could not find Assets/Resources/classes.json");
+            return;
+        }
+
+        try
+        {
+            JObject root = JObject.Parse(classFile.text);
+            foreach (JProperty property in root.Properties())
+            {
+                CharacterClassData classData = property.Value.ToObject<CharacterClassData>();
+                if (classData != null)
+                {
+                    characterClasses[property.Name] = classData;
+                }
+            }
+
+            if (!characterClasses.ContainsKey(selectedCharacterClass) && characterClasses.Count > 0)
+            {
+                selectedCharacterClass = characterClasses.Keys.First();
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to parse classes.json: {e.Message}");
+        }
+    }
+
+    public void SetCharacterClass(string className)
+    {
+        if (string.IsNullOrWhiteSpace(className))
+        {
+            return;
+        }
+
+        if (!characterClasses.ContainsKey(className))
+        {
+            Debug.LogWarning($"Unknown character class '{className}', keeping {selectedCharacterClass}.");
+            return;
+        }
+
+        selectedCharacterClass = className;
+    }
+
+    private int EvaluateClassStat(string expression, int wave, int fallback)
+    {
+        if (string.IsNullOrWhiteSpace(expression))
+        {
+            return fallback;
+        }
+
+        Dictionary<string, int> vars = new Dictionary<string, int>()
+        {
+            { "wave", wave }
+        };
+
+        return Mathf.RoundToInt(RPNEvaluator.RPNEvaluator.Evaluatef(expression, vars));
     }
 
     public bool TryGetNextRelic(out RelicData relic)
@@ -366,47 +445,25 @@ public class PlayerController : MonoBehaviour
 
     public void ApplyWaveScaling(int wave)
     {
-        Dictionary<string, int> vars =
-            new Dictionary<string, int>()
+        if (!characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
+        {
+            Debug.LogWarning($"Class '{selectedCharacterClass}' not loaded, falling back to mage formulas.");
+            classData = new CharacterClassData
             {
-                { "wave", wave }
+                health = "95 wave 5 * +",
+                mana = "90 wave 10 * +",
+                mana_regeneration = "10 wave +",
+                spellpower = "wave 10 *",
+                speed = "5"
             };
+        }
 
-        // evaluate scaled stats
-        int maxHP = Mathf.RoundToInt(
-            RPNEvaluator.RPNEvaluator.Evaluatef(
-                "95 wave 5 * +",
-                vars
-            )
-        );
-
-        int mana = Mathf.RoundToInt(
-            RPNEvaluator.RPNEvaluator.Evaluatef(
-                "90 wave 10 * +",
-                vars
-            )
-        );
-
-        int manaRegen = Mathf.RoundToInt(
-            RPNEvaluator.RPNEvaluator.Evaluatef(
-                "10 wave +",
-                vars
-            )
-        );
-
-        int power = Mathf.RoundToInt(
-            RPNEvaluator.RPNEvaluator.Evaluatef(
-                "wave 10 *",
-                vars
-            )
-        );
-
-        int moveSpeed = Mathf.RoundToInt(
-            RPNEvaluator.RPNEvaluator.Evaluatef(
-                "5",
-                vars
-            )
-        );
+        // evaluate scaled stats according to selected class definitions.
+        int maxHP = EvaluateClassStat(classData.health, wave, 100);
+        int mana = EvaluateClassStat(classData.mana, wave, 100);
+        int manaRegen = EvaluateClassStat(classData.mana_regeneration, wave, 10);
+        int power = EvaluateClassStat(classData.spellpower, wave, 10);
+        int moveSpeed = EvaluateClassStat(classData.speed, wave, 5);
 
         // movement speed
         speed = moveSpeed;
@@ -585,7 +642,13 @@ public class PlayerController : MonoBehaviour
 
                 relicBonusSpellPower = Mathf.Max(0, relicBonusSpellPower);
 
-                spellcaster.spellPower = GameManager.Instance.currentWave * 10 + relicBonusSpellPower;
+                int basePower = 10;
+                if (characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
+                {
+                    basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
+                }
+
+                spellcaster.spellPower = basePower + relicBonusSpellPower;
 
                 spellcaster.RebuildSpells();
             }

@@ -18,8 +18,10 @@ public class EnemySpawner : MonoBehaviour
 
     // adding level storage
     private List<Level> levels;
+    private readonly List<string> characterClasses = new List<string>();
     private Level currentLevel;
     private int currentWave = 1;    
+    private string selectedCharacterClass;
 
     // tracks spawn count
     private int activeSpawnCoroutines = 0;
@@ -31,21 +33,9 @@ public class EnemySpawner : MonoBehaviour
     {
         enemiesByType = EnemyJsonLoader.LoadEnemies();
         levels = LevelsJsonLoader.LoadLevels();
+        LoadCharacterClasses();
 
-        float yOffset = 130;
-
-        // dynamic buttons for each level/difficulty
-        foreach (Level level in levels)
-        {
-            GameObject selector = Instantiate(button, level_selector.transform);
-
-            selector.transform.localPosition = new Vector3(0, yOffset);
-            yOffset -= 60;
-
-            MenuSelectorController ctrl = selector.GetComponent<MenuSelectorController>();
-            ctrl.spawner = this;
-            ctrl.SetLevel(level.name);
-        }
+        BuildClassButtons();
     }
 
     // Update is called once per frame
@@ -56,6 +46,12 @@ public class EnemySpawner : MonoBehaviour
 
     public void StartLevel(string levelname)
     {
+        if (string.IsNullOrWhiteSpace(selectedCharacterClass))
+        {
+            Debug.LogWarning("Select a character class before starting a level.");
+            return;
+        }
+
         // initiate selected level
         currentLevel = levels.FirstOrDefault(l => l.name == levelname);
 
@@ -69,9 +65,12 @@ public class EnemySpawner : MonoBehaviour
         // reset wave counter
         currentWave = 1;
 
+        PlayerController playerController = GameManager.Instance.player.GetComponent<PlayerController>();
+        playerController.SetCharacterClass(selectedCharacterClass);
+
         level_selector.gameObject.SetActive(false);
 
-        GameManager.Instance.player.GetComponent<PlayerController>().StartLevel();
+        playerController.StartLevel();
 
         StartCoroutine(SpawnWave());
     }
@@ -97,9 +96,84 @@ public class EnemySpawner : MonoBehaviour
 
         currentWave = 1;
         currentLevel = null;
+        selectedCharacterClass = null;
 
         // show the level selector
         level_selector.gameObject.SetActive(true);
+        BuildClassButtons();
+    }
+
+    public void SelectCharacterClass(string className)
+    {
+        selectedCharacterClass = className;
+        BuildLevelButtons();
+    }
+
+    private void LoadCharacterClasses()
+    {
+        characterClasses.Clear();
+
+        TextAsset classFile = Resources.Load<TextAsset>("classes");
+        if (classFile == null)
+        {
+            Debug.LogError("Could not find Assets/Resources/classes.json");
+            return;
+        }
+
+        try
+        {
+            JObject root = JObject.Parse(classFile.text);
+            foreach (JProperty property in root.Properties())
+            {
+                characterClasses.Add(property.Name);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to parse classes.json: {e.Message}");
+        }
+    }
+
+    private void BuildClassButtons()
+    {
+        ClearSelectorButtons();
+
+        float yOffset = 130;
+        foreach (string className in characterClasses)
+        {
+            GameObject selector = Instantiate(button, level_selector.transform);
+            selector.transform.localPosition = new Vector3(0, yOffset);
+            yOffset -= 60;
+
+            MenuSelectorController ctrl = selector.GetComponent<MenuSelectorController>();
+            ctrl.spawner = this;
+            ctrl.SetCharacterClass(className);
+        }
+    }
+
+    private void BuildLevelButtons()
+    {
+        ClearSelectorButtons();
+
+        float yOffset = 130;
+        foreach (Level level in levels)
+        {
+            GameObject selector = Instantiate(button, level_selector.transform);
+            selector.transform.localPosition = new Vector3(0, yOffset);
+            yOffset -= 60;
+
+            MenuSelectorController ctrl = selector.GetComponent<MenuSelectorController>();
+            ctrl.spawner = this;
+            ctrl.SetLevel(level.name);
+        }
+    }
+
+    private void ClearSelectorButtons()
+    {
+        for (int i = level_selector.transform.childCount - 1; i >= 0; i--)
+        {
+            Destroy(level_selector.transform.GetChild(i).gameObject);
+        }
     }
 
 
