@@ -539,7 +539,7 @@ public class PlayerController : MonoBehaviour
             hp.SetMaxHP(maxHP);
 
             // optional full heal each wave:
-            hp.hp = hp.max_hp;
+            // hp.hp = hp.max_hp;
         }
 
         // spellcaster setup
