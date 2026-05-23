@@ -8,10 +8,13 @@ public class Damage
         PHYSICAL, ARCANE, NATURE, FIRE, ICE, DARK, LIGHT
     }
     public Type type;
-    public Damage(int amount, Type type)
+
+    public GameObject source;
+    public Damage(int amount, Type type, GameObject source = null)
     {
         this.amount = amount;
         this.type = type;
+        this.source = source;
     }
 
     public static Type TypeFromString(string type)

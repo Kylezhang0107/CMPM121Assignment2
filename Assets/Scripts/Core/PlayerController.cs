@@ -75,6 +75,8 @@ public class PlayerController : MonoBehaviour
     // bonus fields
     private int relicBonusSpellPower = 0;
     private float stationaryTimer = 0f;
+    private float distanceMoved = 0f;
+    private Vector3 previousPosition;
 
     // active relic tracker
     private readonly List<RelicData> activeTemporaryRelics = new List<RelicData>();
@@ -85,6 +87,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         unit = GetComponent<Unit>();
+        previousPosition = transform.position;
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
@@ -92,6 +95,7 @@ public class PlayerController : MonoBehaviour
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
         EventBus.Instance.OnPlayerMove += OnPlayerMoveEvent;
+        EventBus.Instance.OnWaveComplete += OnWaveCompleteEvent;
     }
 
     private void OnDestroy()
@@ -100,6 +104,7 @@ public class PlayerController : MonoBehaviour
         EventBus.Instance.OnEnemyKilled -= OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast -= OnSpellCastEvent;
         EventBus.Instance.OnPlayerMove -= OnPlayerMoveEvent;
+        EventBus.Instance.OnWaveComplete -= OnWaveCompleteEvent;
     }
 
     private void LoadRelicCatalog()
@@ -334,7 +339,7 @@ public class PlayerController : MonoBehaviour
                     );
 
                 Debug.Log(
-                    "[GREEN GEM/CURSED SCROLL]" +
+                    "[RELIC ACTIVATED]" +
                     relic.name +
                     " restored " +
                     (spellcaster.mana - oldMana) +
@@ -343,6 +348,40 @@ public class PlayerController : MonoBehaviour
                     spellcaster.mana +
                     "/" +
                     spellcaster.max_mana
+                );
+
+                break;
+            }
+
+            case "gain-maxhp":
+            {
+                int prevMax_hp = hp.max_hp;
+
+                int amount = Mathf.RoundToInt(
+                        RPNEvaluator.RPNEvaluator.Evaluatef(
+                            relic.effect.amount ?? "0",
+                            new Dictionary<string, int>()
+                        )
+                );
+
+                hp.max_hp += amount;
+                hp.hp += amount;
+
+                healthui.SetHealth(hp);
+
+                Debug.Log(
+                    "[RELIC ACTIVATED] " +
+                    relic.name +
+                    " grant +" +
+                    amount +
+                    " max HP."
+                );
+
+                Debug.Log(
+                    "[PLAYER HP] Previous Max HP = " +
+                    prevMax_hp +
+                    " and Current Max HP = " +
+                    hp.max_hp
                 );
 
                 break;
@@ -408,16 +447,26 @@ public class PlayerController : MonoBehaviour
 
     private void OnDamageEvent(Vector3 where, Damage damage, Hittable target)
     {
-        if (target == null || target.owner != gameObject || spellcaster == null)
+        if (spellcaster == null)
         {
             return;
         }
 
-        TriggerRelics(
-            "take-damage",
-            damage,
-            target
-        );
+        // player took damage
+        if (target != null && target.owner == gameObject)
+        {
+            TriggerRelics(
+                "take-damage",
+                damage,
+                target
+            );
+        }
+
+        // player dealt damage
+        if (damage != null && damage.source == gameObject)
+        {
+            TriggerRelics("deal-damage");
+        }
     }
 
     private void OnEnemyKilledEvent(GameObject enemy)
@@ -436,6 +485,11 @@ public class PlayerController : MonoBehaviour
         {
             RemoveTemporaryRelics("move");
         }
+    }
+
+    private void OnWaveCompleteEvent(int wave)
+    {
+        TriggerRelics("wave-complete");
     }
 
     public void StartLevel()
@@ -536,6 +590,16 @@ public class PlayerController : MonoBehaviour
     {
         HandleStandStillRelics();
 
+        distanceMoved +=
+                Vector3.Distance(
+                    transform.position,
+                    previousPosition
+                );
+        
+        previousPosition = transform.position;
+
+        HandleDistanceRelics();
+
         if (spellcaster == null || Keyboard.current == null)
         {
             return;
@@ -606,6 +670,43 @@ public class PlayerController : MonoBehaviour
             if (stationaryTimer >= required
                 && !activeTemporaryRelics.Contains(relic))
             {
+                ApplyRelicEffect(relic);
+            }
+        }
+    }
+
+    private void HandleDistanceRelics()
+    {
+        foreach (RelicData relic in grantedRelics)
+        {
+            if (relic == null)
+            {
+                continue;
+            }
+
+            if (!string.Equals(
+                relic.trigger?.type,
+                "distance-moved",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            float required = 0f;
+
+            float.TryParse(
+                relic.trigger.amount,
+                out required
+            );
+
+            if (distanceMoved >= required)
+            {
+                distanceMoved = 0f;
+
+                Debug.Log(
+                    "[RELIC TRIGGER] distance-moved"
+                );
+
                 ApplyRelicEffect(relic);
             }
         }

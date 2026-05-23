@@ -65,4 +65,15 @@ public class EventBus
     {
         OnPlayerMove?.Invoke(movement);
     }
+
+    // =========================
+    // WAVE COMPLETE
+    // =========================
+
+    public event Action<int> OnWaveComplete;
+    
+    public void WaveComplete(int wave)
+    {
+        OnWaveComplete?.Invoke(wave);
+    }
 }

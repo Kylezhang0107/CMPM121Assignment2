@@ -139,7 +139,7 @@ public class Spell
     {
         if (other.team != team)
         {
-            other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE));
+            other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE, GameManager.Instance.player));
         }
     }
 

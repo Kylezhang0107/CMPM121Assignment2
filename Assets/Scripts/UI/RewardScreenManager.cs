@@ -380,6 +380,10 @@ public class RewardScreenManager : MonoBehaviour
             // Generate and display the spell reward once on state entry
             if (stateChanged)
             {
+                EventBus.Instance.WaveComplete(
+                    GameManager.Instance.currentWave
+                );
+
                 ShowReward();
             }
         }

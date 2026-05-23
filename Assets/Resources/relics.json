@@ -68,7 +68,7 @@
         }
     },
     {
-        "name": "Steel Heart",
+        "name": "Amulet of Health",
         "sprite": 5,
         "trigger": {
             "description": "Whenever you finish a wave",
@@ -81,7 +81,7 @@
         }
     },
     {
-        "name": "Arcane Boots",
+        "name": "Swift Steel",
         "sprite": 6,
         "trigger": {
             "description": "After moving 50 units",

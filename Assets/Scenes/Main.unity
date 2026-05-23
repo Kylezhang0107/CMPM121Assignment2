@@ -56817,6 +56817,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: 'sprites.Array.data[4]'
+      value: 
+      objectReference: {fileID: -7581497738134486756, guid: e621137f9197f0842a52168123ca0298, type: 3}
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: 'sprites.Array.data[5]'
+      value: 
+      objectReference: {fileID: -6830550584264395067, guid: e621137f9197f0842a52168123ca0298, type: 3}
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: 'sprites.Array.data[6]'
+      value: 
+      objectReference: {fileID: 1101399312976306695, guid: e621137f9197f0842a52168123ca0298, type: 3}
+    - target: {fileID: 421493446964380599, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
+      propertyPath: 'sprites.Array.data[7]'
+      value: 
+      objectReference: {fileID: 1101399312976306695, guid: e621137f9197f0842a52168123ca0298, type: 3}
     - target: {fileID: 2107732465084047900, guid: b531ed09aa5f5a847918ddac98e4bf16, type: 3}
       propertyPath: m_Name
       value: GFXManager
