@@ -145,7 +145,6 @@ public class SpellCaster
                 continue;
             }
 
-            // Get base spell ID (even if wrapped in modifiers)
             Spell baseSpell = currentSpell.GetBaseSpell();
             string baseSpellId = baseSpell.spellId;
             
@@ -155,59 +154,38 @@ public class SpellCaster
                 continue;
             }
 
-            Spell rebuilt = builder.BuildSpecific(
-                this,
-                baseSpellId,
-                spellPower,
-                Mathf.Max(
-                    1,
-                    GameManager.Instance.currentWave
-                )
-            );
-
-            rebuilt.lastProgressionPower = spellPower;
-
-            spells[i] = rebuilt;
-
-
-            /*
             int oldPower = baseSpell.lastProgressionPower;
             int newPower = spellPower;
             
-            // If first progression or no prior tracking, initialize from power 0
-            if (oldPower == 0 && spellPower > 0)
-                oldPower = 0;
-
-            // Only apply gains if power actually increased
-            if (newPower > oldPower)
+            if (oldPower != newPower)
             {
-                // Get pure base spell properties at OLD power
+                int wave = Mathf.Max(1, GameManager.Instance.currentWave);
+
+                // Recompute the base spell's stats in place so modifiers stay intact.
                 builder.GetBaseSpellProperties(
-                    baseSpellId, 
-                    oldPower, 
-                    1, 
-                    out int oldManaCost, 
-                    out int oldDamage, 
+                    baseSpellId,
+                    oldPower,
+                    wave,
+                    out int oldManaCost,
+                    out int oldDamage,
                     out int oldSecondaryDamage,
                     out float oldCooldown,
                     out float oldProjectileSpeed,
                     out float oldSecondaryProjectileSpeed
                 );
 
-                // Get pure base spell properties at NEW power
                 builder.GetBaseSpellProperties(
-                    baseSpellId, 
-                    newPower, 
-                    1, 
-                    out int newManaCost, 
-                    out int newDamage, 
+                    baseSpellId,
+                    newPower,
+                    wave,
+                    out int newManaCost,
+                    out int newDamage,
                     out int newSecondaryDamage,
                     out float newCooldown,
                     out float newProjectileSpeed,
                     out float newSecondaryProjectileSpeed
                 );
 
-                // Calculate additive gains
                 int manaCostGain = newManaCost - oldManaCost;
                 int damageGain = newDamage - oldDamage;
                 int secondaryDamageGain = newSecondaryDamage - oldSecondaryDamage;
@@ -215,26 +193,23 @@ public class SpellCaster
                 float projectileSpeedGain = newProjectileSpeed - oldProjectileSpeed;
                 float secondaryProjectileSpeedGain = newSecondaryProjectileSpeed - oldSecondaryProjectileSpeed;
 
-                // Apply gains directly to CURRENT spell (preserves all modifiers)
-                currentSpell.manaCost = Mathf.Max(0, currentSpell.manaCost + manaCostGain);
-                currentSpell.damageAmount = Mathf.Max(1, currentSpell.damageAmount + damageGain);
-                if (currentSpell.secondaryDamageAmount > 0)
+                baseSpell.manaCost = Mathf.Max(0, baseSpell.manaCost + manaCostGain);
+                baseSpell.damageAmount = Mathf.Max(1, baseSpell.damageAmount + damageGain);
+                if (baseSpell.secondaryDamageAmount > 0)
                 {
-                    currentSpell.secondaryDamageAmount = Mathf.Max(1, currentSpell.secondaryDamageAmount + secondaryDamageGain);
+                    baseSpell.secondaryDamageAmount = Mathf.Max(1, baseSpell.secondaryDamageAmount + secondaryDamageGain);
                 }
-                currentSpell.cooldown = Mathf.Max(0.05f, currentSpell.cooldown + cooldownGain);
-                currentSpell.projectileSpeed = Mathf.Max(0.1f, currentSpell.projectileSpeed + projectileSpeedGain);
-                if (currentSpell.secondaryProjectileSpeed > 0f)
+                baseSpell.cooldown = Mathf.Max(0.05f, baseSpell.cooldown + cooldownGain);
+                baseSpell.projectileSpeed = Mathf.Max(0.1f, baseSpell.projectileSpeed + projectileSpeedGain);
+                if (baseSpell.secondaryProjectileSpeed > 0f)
                 {
-                    currentSpell.secondaryProjectileSpeed = Mathf.Max(0.1f, currentSpell.secondaryProjectileSpeed + secondaryProjectileSpeedGain);
+                    baseSpell.secondaryProjectileSpeed = Mathf.Max(0.1f, baseSpell.secondaryProjectileSpeed + secondaryProjectileSpeedGain);
                 }
 
-                // Update base spell's lastProgressionPower to prevent duplicate gains
                 baseSpell.lastProgressionPower = newPower;
             }
 
             spells[i] = currentSpell;
-            */
         }
     }
 
