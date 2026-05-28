@@ -142,14 +142,14 @@
         "name": "Porcelain Cat",
         "sprite": 15,
         "trigger": {
-            "description": "While low on mana",
-            "type": "no-mana"
+            "description": "While on cooldown",
+            "type": "cooldown"
         },
         "effect": {
             "description": "increase movement speed.",
             "type":  "gain-speed",
             "amount": "+10",
-            "until":  "mana_up"
+            "until":  "coolup"
         }
     }
 ]
