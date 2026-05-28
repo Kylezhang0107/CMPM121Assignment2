@@ -94,5 +94,62 @@
             "amount": "50",
             "until": "cast-spell"
         }
+    },
+    { 
+        "name": "Steadfast Shield",
+        "sprite": 5,
+        "trigger": {
+            "description": "While standing still",
+            "type": "stand-still",
+            "amount":  "3"
+        },
+        "effect": {
+            "description": "gain increased mana regeneration.",
+            "type":  "gain-manareg",
+            "amount": "10 wave 5 * +",
+            "until":  "move"
+        }
+    },
+    { 
+        "name": "Fool's Gold Mask",
+        "sprite": 2,
+        "trigger": {
+            "description": "While standing still",
+            "type": "stand-still",
+            "amount":  "3"
+        },
+        "effect": {
+            "description": "reduce spellpower.",
+            "type":  "gain-spellpower",
+            "amount": "-10",
+            "until":  "move"
+        }
+    },
+    { 
+        "name": "Crown of Midas",
+        "sprite": 9,
+        "trigger": {
+            "description": "When you kill an enemy",
+            "type": "on-kill"
+        },
+        "effect": {
+            "description": "have a chance to heal.",
+            "type":  "gain-health",
+            "amount": "+10"
+        }
+    },
+    { 
+        "name": "Porcelain Cat",
+        "sprite": 15,
+        "trigger": {
+            "description": "While low on mana",
+            "type": "no-mana"
+        },
+        "effect": {
+            "description": "increase movement speed.",
+            "type":  "gain-speed",
+            "amount": "+10",
+            "until":  "mana_up"
+        }
     }
 ]

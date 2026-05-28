@@ -51,6 +51,13 @@
                 "hp": "75 50 wave * +",
                 "damage": "base 10 +",
                 "location": "random bone"
+            },
+            {
+                "enemy": "wendigo",
+                "count": "wave 5 / 1 wave 5 % - *",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random bone"
             }
         ]
    },
@@ -77,6 +84,13 @@
                 "count": "wave 10 / 1 wave 10 % - *",
                 "hp": "75 15 wave * +",
                 "damage": "base 5 -",
+                "location": "random bone"
+            },
+            {
+                "enemy": "wendigo",
+                "count": "wave 5 / 1 wave 5 % - *",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
                 "location": "random bone"
             }
         ]
