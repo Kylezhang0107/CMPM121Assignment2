@@ -122,9 +122,9 @@ public class Spell
             direction,
             speed,
             onHit,
+            lifetime,
             piercing,
-            team,
-            lifetime
+            team
         );
             return;
         }
