@@ -7,6 +7,8 @@ public class ProjectileController : MonoBehaviour
     public float lifetime;
     public event Action<Hittable,Vector3> OnHit;
     public ProjectileMovement movement;
+    public bool piercing = false;
+    public Hittable.Team ownerTeam;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -23,23 +25,40 @@ public class ProjectileController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("projectile")) return;
+        if (collision.gameObject.CompareTag("projectile"))
+        {
+            return;
+        }
+
+        bool hitUnit = false;
         if (collision.gameObject.CompareTag("unit"))
         {
+            Hittable target = null;
             var ec = collision.gameObject.GetComponent<EnemyController>();
             if (ec != null)
             {
-                OnHit(ec.hp, transform.position);
+                target = ec.hp;
             }
             else
             {
                 var pc = collision.gameObject.GetComponent<PlayerController>();
                 if (pc != null)
                 {
-                    OnHit(pc.hp, transform.position);
+                    target = pc.hp;
                 }
             }
-
+            if (target != null)
+            {
+                if (target.team != ownerTeam)
+                {
+                    OnHit?.Invoke(target, transform.position);
+                    hitUnit = true;
+                }
+            }
+        }
+        if (piercing && hitUnit)
+        {
+            return;
         }
         Destroy(gameObject);
     }

@@ -34,8 +34,8 @@ public class SpellData
     // optional values
     public string N;
     public string spray;
-
     public string secondary_damage;
+    public bool piercing;
 
     public DamageData damage;
 

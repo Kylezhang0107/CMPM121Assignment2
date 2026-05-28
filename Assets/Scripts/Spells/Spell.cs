@@ -28,6 +28,7 @@ public class Spell
     public int secondaryProjectileCount = 0;
     public float sprayAngle = 0f;
     public float castDelay = 0f;
+    public bool piercing = false;
 
     public string secondaryProjectileTrajectory = "straight";
     public float secondaryProjectileSpeed = 0f;
@@ -110,28 +111,32 @@ public class Spell
         System.Action<Hittable, Vector3> onHit,
         float lifetime = -1f
     )
+    
     {
         if (lifetime > 0f)
         {
-            GameManager.Instance.projectileManager.CreateProjectile(
-                sprite,
-                trajectory,
-                where,
-                direction,
-                speed,
-                onHit,
-                lifetime
-            );
-            return;
-        }
-
         GameManager.Instance.projectileManager.CreateProjectile(
             sprite,
             trajectory,
             where,
             direction,
             speed,
-            onHit
+            onHit,
+            piercing,
+            team,
+            lifetime
+        );
+            return;
+        }
+        GameManager.Instance.projectileManager.CreateProjectile(
+            sprite,
+            trajectory,
+            where,
+            direction,
+            speed,
+            onHit,
+            piercing,
+            team
         );
     }
 
@@ -184,6 +189,11 @@ public class Spell
         if (!string.IsNullOrWhiteSpace(modifierData.description))
         {
             description = modifierData.description + "\n" + description;
+        }
+
+        if (modifierData.piercing)
+        {
+            piercing = true;
         }
     }
 

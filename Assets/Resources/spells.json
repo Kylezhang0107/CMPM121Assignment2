@@ -101,13 +101,11 @@
    "discount": { 
        "name": "discount",
        "description": "Reduce the mana cost of spells by 50%.",
-       "icon": 11,
        "mana_multiplier": "0.5"
    },
     "focus": { 
        "name": "focus",
        "description": "Reduce projectile speed by 75% but increase power by 50%.",
-       "icon": 3,
        "scale": 4,
        "damage_multiplier": "2",
        "speed_multiplier": ".25"
@@ -115,8 +113,8 @@
    "piercing": { 
        "name": "piercing",
        "description": "Allows spells to pass through enemies.",
-       "icon": 4,
        "damage_multiplier": "1.5",
-       "speed_multiplier": "1.5"
+       "speed_multiplier": "1.5",
+       "piercing": true
    }
 }

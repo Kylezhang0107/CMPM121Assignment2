@@ -23,7 +23,10 @@ public class SpellBuilder
         "homing",
         "sidecar",
         "efficiency",
-        "overclock"
+        "overclock",
+        "discount",
+        "focus",
+        "piercing"
     };
 
     public SpellBuilder()
