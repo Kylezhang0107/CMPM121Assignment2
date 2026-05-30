@@ -20,8 +20,8 @@ public static class RelicFactory
             // case "gain-spellpower":
             //     return new GainSpellPowerEffect(data);
 
-            // case "gain-maxhp":
-            //     return new GainMaxHpEffect(data);
+            case "gain-maxhp":
+                return new GainMaxHpEffect(data);
 
             default:
                 Debug.LogError("Unknown relic effect: " + data.effect.type);
@@ -36,11 +36,11 @@ public static class RelicFactory
             case "take-damage":
                 return new TakeDamageTrigger(effect);
 
-            // case "on-kill":
-            //     return new OnKillTrigger(effect);
+            case "on-kill":
+                return new OnKillTrigger(effect);
 
-            // case "wave-complete":
-            //     return new WaveCompleteTrigger(effect);
+            case "wave-complete":
+                return new WaveCompleteTrigger(effect);
 
             default:
                 Debug.LogError("Unknown relic trigger: " + data.trigger.type);

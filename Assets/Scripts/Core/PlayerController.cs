@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
-        GrantRelicByName("Green Gem");
+        //GrantRelicByName("Amulet of Health");
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
