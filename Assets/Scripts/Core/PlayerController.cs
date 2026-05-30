@@ -91,6 +91,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
+        GrantRelicByName("Green Gem");
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
@@ -197,6 +198,14 @@ public class PlayerController : MonoBehaviour
         return Mathf.RoundToInt(RPNEvaluator.RPNEvaluator.Evaluatef(expression, vars));
     }
 
+    public void RefreshRelicStats()
+    {
+        if (spellcaster != null)
+        {
+            spellcaster.RebuildSpells();
+        }
+    }
+
     public bool TryGetNextRelic(out RelicData relic)
     {
         relic = null;
@@ -241,8 +250,12 @@ public class PlayerController : MonoBehaviour
         if (ownedRelicNames.Add(relic.name))
         {
             grantedRelics.Add(relic);
+
+            RuntimeRelic runtimeRelic = RelicFactory.Create(relic);
+            RelicManager.Instance.AddRelic(runtimeRelic);
+
             OnRelicGranted?.Invoke(relic);
-            Debug.Log($"Relic acquired: {relic.name}");
+            Debug.Log("Relic acquired: " + relic.name);
         }
     }
 
@@ -784,5 +797,15 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("You Lost!");
         GameManager.Instance.state = GameManager.GameState.GAMEOVER;
+    }
+
+    // relic tester
+    public void GrantRelicByName(string relicName)
+    {
+        RelicData relic = relicCatalog.Find(r => r.name == relicName);
+        if (relic != null)
+        {
+            GrantRelic(relic);
+        }
     }
 }

@@ -92,6 +92,20 @@
                 "hp": "75 50 wave * +",
                 "damage": "base 10 +",
                 "location": "random bone"
+            },
+            {
+                "enemy": "minotaur",
+                "count": "wave 5 / 1 wave 5 % - *",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random bone"
+            },
+            {
+                "enemy": "leprachaun",
+                "count": "wave 4 /",
+                "hp": "20 wave *",
+                "damage": "base 10 +",
+                "location": "random bone"
             }
         ]
    }

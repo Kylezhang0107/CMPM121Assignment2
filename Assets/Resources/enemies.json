@@ -20,11 +20,25 @@
        "speed": 7,
        "damage": 10
    },
-      {
+   {
        "name": "wendigo",
        "sprite": 15,
        "hp": 120,
        "speed": 4,
        "damage": 60
-   } 
+   },
+   {
+       "name": "minotaur",
+       "sprite": 20,
+       "hp": 300,
+       "speed": 3,
+       "damage": 80
+   },
+   {
+       "name": "leprachaun",
+       "sprite": 9,
+       "hp": 1,
+       "speed": 10,
+       "damage": 10
+   }    
 ]
