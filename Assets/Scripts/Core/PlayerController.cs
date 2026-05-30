@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
         public string type;
         public string amount;
         public string until;
+        public string chance;
     }
 
     [Serializable]
@@ -91,7 +92,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
-        //GrantRelicByName("Amulet of Health");
+        GrantRelicByName("Jade Elephant");
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
@@ -204,6 +205,20 @@ public class PlayerController : MonoBehaviour
         {
             spellcaster.RebuildSpells();
         }
+    }
+
+    public void AddSpellPowerBonus(int amount)
+    {
+        relicBonusSpellPower += amount;
+
+        int basePower = 10;
+        if (characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
+        {
+            basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
+        }
+
+        spellcaster.spellPower = basePower + relicBonusSpellPower;
+        spellcaster.RebuildSpells();
     }
 
     public bool TryGetNextRelic(out RelicData relic)

@@ -101,11 +101,11 @@
         "trigger": {
             "description": "While standing still",
             "type": "stand-still",
-            "amount":  "3"
+            "amount":  "25"
         },
         "effect": {
             "description": "gain increased mana regeneration.",
-            "type":  "gain-manareg",
+            "type":  "gain-mana",
             "amount": "10 wave 5 * +",
             "until":  "move"
         }
@@ -134,22 +134,9 @@
         },
         "effect": {
             "description": "have a chance to heal.",
-            "type":  "gain-health",
-            "amount": "+10"
-        }
-    },
-    { 
-        "name": "Porcelain Cat",
-        "sprite": 15,
-        "trigger": {
-            "description": "While on cooldown",
-            "type": "cooldown"
-        },
-        "effect": {
-            "description": "increase movement speed.",
-            "type":  "gain-speed",
-            "amount": "+10",
-            "until":  "coolup"
+            "type":  "gain-maxhp",
+            "amount": "2",
+            "chance": "0.1667"
         }
     }
 ]

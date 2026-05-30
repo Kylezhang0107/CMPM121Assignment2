@@ -4,10 +4,15 @@ public static class RelicFactory
 {
     public static RuntimeRelic Create(PlayerController.RelicData data)
     {
-        RelicEffect effect = CreateEffect(data);
-        RelicTrigger trigger = CreateTrigger(data, effect);
+        RuntimeRelic relic = new RuntimeRelic(data, null, null);
 
-        return new RuntimeRelic(data, trigger, effect);
+        RelicEffect effect = CreateEffect(data);
+        RelicTrigger trigger = CreateTrigger(data, relic, effect);
+
+        relic.effect = effect;
+        relic.trigger = trigger;
+
+        return relic;
     }
 
     private static RelicEffect CreateEffect(PlayerController.RelicData data)
@@ -17,8 +22,8 @@ public static class RelicFactory
             case "gain-mana":
                 return new GainManaEffect(data);
 
-            // case "gain-spellpower":
-            //     return new GainSpellPowerEffect(data);
+            case "gain-spellpower":
+                return new GainSpellPowerEffect(data);
 
             case "gain-maxhp":
                 return new GainMaxHpEffect(data);
@@ -29,18 +34,24 @@ public static class RelicFactory
         }
     }
 
-    private static RelicTrigger CreateTrigger(PlayerController.RelicData data, RelicEffect effect)
+    private static RelicTrigger CreateTrigger(PlayerController.RelicData data, RuntimeRelic relic, RelicEffect effect)
     {
         switch (data.trigger.type)
         {
             case "take-damage":
-                return new TakeDamageTrigger(effect);
+                return new TakeDamageTrigger(relic);
 
             case "on-kill":
-                return new OnKillTrigger(effect);
+                return new OnKillTrigger(relic);
 
             case "wave-complete":
-                return new WaveCompleteTrigger(effect);
+                return new WaveCompleteTrigger(relic);
+
+            case "stand-still":
+                return new StandStillTrigger(relic);
+
+            case "deal-damage":
+                return new DealDamageTrigger(relic);
 
             default:
                 Debug.LogError("Unknown relic trigger: " + data.trigger.type);

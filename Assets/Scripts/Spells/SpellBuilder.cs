@@ -74,6 +74,7 @@ public class SpellBuilder
         {
             spell.projectileTrajectory = data.projectile.trajectory;
             spell.projectileSpeed = EvaluateFloat(data.projectile.speed, vars, 10f);
+            spell.baseProjectileSpeed = spell.projectileSpeed;
             spell.projectileSprite = data.projectile.sprite;
             spell.projectileLifetime = EvaluateFloatOptional(data.projectile.lifetime, vars, -1f);
         }

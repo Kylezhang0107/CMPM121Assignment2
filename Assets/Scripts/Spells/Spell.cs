@@ -16,7 +16,8 @@ public class Spell
 
     public int icon = 0;
 
-    public float projectileSpeed = 15f;
+    public float baseProjectileSpeed;
+    public float projectileSpeed;
 
     public string projectileTrajectory = "straight";
 
@@ -150,7 +151,6 @@ public class Spell
 
     public virtual void ApplyModifier(SpellData modifierData, int power = 0, int wave = 1)
     {
-
         float damageMultiplier = EvaluateFloatOptional(modifierData.damage_multiplier, power, wave, 1f);
         float manaMultiplier = EvaluateFloatOptional(modifierData.mana_multiplier, power, wave, 1f);
         float cooldownMultiplier = EvaluateFloatOptional(modifierData.cooldown_multiplier, power, wave, 1f);
@@ -158,6 +158,7 @@ public class Spell
         float manaAdder = EvaluateFloatOptional(modifierData.mana_adder, power, wave, 0f);
 
         damageAmount = Mathf.Max(1, Mathf.RoundToInt(damageAmount * damageMultiplier));
+
         if (secondaryDamageAmount > 0)
         {
             secondaryDamageAmount = Mathf.Max(1, Mathf.RoundToInt(secondaryDamageAmount * damageMultiplier));
@@ -166,7 +167,8 @@ public class Spell
         manaCost = Mathf.Max(0, Mathf.RoundToInt(manaCost * manaMultiplier + manaAdder));
         cooldown = Mathf.Max(0.05f, cooldown * cooldownMultiplier);
 
-        projectileSpeed = Mathf.Max(0.1f, projectileSpeed * speedMultiplier);
+        projectileSpeed = Mathf.Max(0.1f, baseProjectileSpeed * speedMultiplier);
+
         if (secondaryProjectileSpeed > 0f)
         {
             secondaryProjectileSpeed = Mathf.Max(0.1f, secondaryProjectileSpeed * speedMultiplier);
@@ -175,6 +177,7 @@ public class Spell
         if (!string.IsNullOrWhiteSpace(modifierData.projectile_trajectory))
         {
             projectileTrajectory = modifierData.projectile_trajectory;
+
             if (secondaryProjectileSpeed > 0f)
             {
                 secondaryProjectileTrajectory = modifierData.projectile_trajectory;
@@ -191,6 +194,7 @@ public class Spell
             description = modifierData.description + "\n" + description;
         }
 
+        // FLAGS
         if (modifierData.piercing)
         {
             piercing = true;

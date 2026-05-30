@@ -1,11 +1,14 @@
 public abstract class RelicTrigger
 {
-    protected RelicEffect effect;
-    public RelicTrigger(RelicEffect effect)
+    protected RuntimeRelic relic;
+
+    protected RelicTrigger(RuntimeRelic relic)
     {
-        this.effect = effect;
+        this.relic = relic;
     }
 
     public abstract void Register();
     public abstract void Unregister();
+
+    public virtual void OnEffectRemoved() { }
 }

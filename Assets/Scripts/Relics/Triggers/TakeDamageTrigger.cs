@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class TakeDamageTrigger : RelicTrigger
 {
-    public TakeDamageTrigger(RelicEffect effect) : base(effect)
-    {
-    }
+    public TakeDamageTrigger(RuntimeRelic relic) : base(relic) { }
 
     public override void Register()
     {
@@ -20,7 +18,10 @@ public class TakeDamageTrigger : RelicTrigger
     {
         if (target != null && target.owner == GameManager.Instance.player)
         {
-            effect.Activate();
+            if (relic.IsTemporary())
+                RelicManager.Instance.ActivateTemporary(relic);
+            else
+                relic.effect.Activate();
         }
     }
 }

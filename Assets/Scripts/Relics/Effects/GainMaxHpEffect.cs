@@ -12,8 +12,15 @@ public class GainMaxHpEffect : RelicEffect
 
     public override void Activate()
     {
+        float chance = string.IsNullOrEmpty(data.effect.chance) ? 1f : float.Parse(data.effect.chance);
+
+        if (UnityEngine.Random.value > chance)
+        {
+            return;
+        }
+
         PlayerController player = GameManager.Instance.player.GetComponent<PlayerController>();
-        int amount = Mathf.RoundToInt(RPNEvaluator.RPNEvaluator.Evaluatef(data.effect.amount,new Dictionary<string, int>()));
+        int amount = Mathf.RoundToInt(RPNEvaluator.RPNEvaluator.Evaluatef(data.effect.amount, new Dictionary<string, int>()));
 
         player.hp.max_hp += amount;
         player.hp.hp += amount;

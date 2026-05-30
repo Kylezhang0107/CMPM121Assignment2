@@ -1,8 +1,6 @@
 public class WaveCompleteTrigger : RelicTrigger
 {
-    public WaveCompleteTrigger(RelicEffect effect) : base(effect)
-    {
-    }
+    public WaveCompleteTrigger(RuntimeRelic relic) : base(relic) { }
 
     public override void Register()
     {
@@ -16,6 +14,9 @@ public class WaveCompleteTrigger : RelicTrigger
 
     private void OnWaveComplete(int wave)
     {
-        effect.Activate();
+        if (relic.IsTemporary())
+            RelicManager.Instance.ActivateTemporary(relic);
+        else
+            relic.effect.Activate();
     }
 }

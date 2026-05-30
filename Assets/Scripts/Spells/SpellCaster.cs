@@ -12,6 +12,7 @@ public class SpellCaster
     public int spellPower;
     public Hittable.Team team;
     public List<Spell> spells;
+    public int pendingSpellPowerBonus = 0;
     public int activeSpellIndex;
 
     // potential spell to be accepted
@@ -200,7 +201,8 @@ public class SpellCaster
                     baseSpell.secondaryDamageAmount = Mathf.Max(1, baseSpell.secondaryDamageAmount + secondaryDamageGain);
                 }
                 baseSpell.cooldown = Mathf.Max(0.05f, baseSpell.cooldown + cooldownGain);
-                baseSpell.projectileSpeed = Mathf.Max(0.1f, baseSpell.projectileSpeed + projectileSpeedGain);
+                Spell rebuilt = builder.BuildSpecific(this, baseSpell.spellId, newPower, wave);
+                spells[i] = rebuilt;
                 if (baseSpell.secondaryProjectileSpeed > 0f)
                 {
                     baseSpell.secondaryProjectileSpeed = Mathf.Max(0.1f, baseSpell.secondaryProjectileSpeed + secondaryProjectileSpeedGain);

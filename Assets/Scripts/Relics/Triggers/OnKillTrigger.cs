@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class OnKillTrigger : RelicTrigger
 {
-    public OnKillTrigger(RelicEffect effect) : base(effect)
-    {
-    }
+    public OnKillTrigger(RuntimeRelic relic) : base(relic) { }
 
     public override void Register()
     {
@@ -18,6 +16,9 @@ public class OnKillTrigger : RelicTrigger
 
     private void OnKill(GameObject enemy)
     {
-        effect.Activate();
+        if (relic.IsTemporary())
+            RelicManager.Instance.ActivateTemporary(relic);
+        else
+            relic.effect.Activate();
     }
 }
