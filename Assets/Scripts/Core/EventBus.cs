@@ -55,6 +55,19 @@ public class EventBus
         OnSpellCast?.Invoke(spell);
     }
 
+    public event Action<Spell> OnSpellCooldownStarted;
+    public event Action<Spell> OnSpellCooldownEnded;
+    public void SpellCooldownStarted(Spell spell)
+    {
+        OnSpellCooldownStarted?.Invoke(spell);
+    }
+
+    public void SpellCooldownEnded(Spell spell)
+    {
+        OnSpellCooldownEnded?.Invoke(spell);
+    }
+        
+
     // =========================
     // PLAYER MOVE
     // =========================

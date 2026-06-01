@@ -15,6 +15,7 @@ public class RelicManager : MonoBehaviour
         EventBus.Instance.OnDamage += OnDamage;
         EventBus.Instance.OnSpellCast += OnSpellCast;
         EventBus.Instance.OnPlayerMove += OnPlayerMove;
+        EventBus.Instance.OnSpellCooldownEnded += OnSpellCooldownEnded;
     }
 
     private void OnDestroy()
@@ -22,6 +23,7 @@ public class RelicManager : MonoBehaviour
         EventBus.Instance.OnDamage -= OnDamage;
         EventBus.Instance.OnSpellCast -= OnSpellCast;
         EventBus.Instance.OnPlayerMove -= OnPlayerMove;
+        EventBus.Instance.OnSpellCooldownEnded -= OnSpellCooldownEnded;
     }
 
     public void AddRelic(RuntimeRelic relic)
@@ -78,6 +80,11 @@ public class RelicManager : MonoBehaviour
         {
             RemoveUntil("move");
         }
+    }
+
+    private void OnSpellCooldownEnded(Spell spell)
+    {
+        RemoveUntil("coolup");
     }
 
     public void ClearRelics()

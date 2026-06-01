@@ -31,6 +31,9 @@ public static class RelicFactory
             case "gain-heal":
                 return new GainHealEffect(data);
 
+            case "gain-speed":
+                return new GainMovementSpeedEffect(data);
+
             default:
                 Debug.LogError("Unknown relic effect: " + data.effect.type);
                 return null;
@@ -58,6 +61,12 @@ public static class RelicFactory
 
             case "distance-moved":
                 return new DistanceMovedTrigger(relic);
+
+            case "cooldown":
+                return new OnCooldownTrigger(relic);
+
+            case "off-cooldown":
+                return new OffCooldownTrigger(relic);
 
             default:
                 Debug.LogError("Unknown relic trigger: " + data.trigger.type);

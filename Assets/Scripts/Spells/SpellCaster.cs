@@ -229,6 +229,8 @@ public class SpellCaster
             mana -= spell.GetManaCost();
             spell.last_cast = Time.time;
 
+            EventBus.Instance.SpellCooldownStarted(spell);
+
             yield return spell.Cast(
                 where,
                 target,

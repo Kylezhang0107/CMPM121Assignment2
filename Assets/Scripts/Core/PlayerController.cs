@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
     public SpellUIContainer spellUIContainer;
 
     public int speed;
-
+    private Vector2 moveInput;
     public Unit unit;
 
     private readonly List<RelicData> relicCatalog = new List<RelicData>();
@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
-        GrantRelicByName("Swift Steel");
+        //GrantRelicByName("Porcelain Cat");
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
@@ -615,6 +615,11 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (unit != null)
+        {
+            unit.movement = moveInput * speed;
+        }
+
         HandleStandStillRelics();
 
         if (spellcaster == null || Keyboard.current == null)
@@ -753,11 +758,15 @@ public class PlayerController : MonoBehaviour
 
     void OnMove(InputValue value)
     {
-        if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
-        unit.movement = value.Get<Vector2>()*speed;
-        EventBus.Instance.PlayerMove(
-            unit.movement
-        );
+        if (GameManager.Instance.state == GameManager.GameState.PREGAME ||
+            GameManager.Instance.state == GameManager.GameState.GAMEOVER)
+        {
+            return;
+        }
+
+        moveInput = value.Get<Vector2>();
+
+        EventBus.Instance.PlayerMove(moveInput);
     }
 
     void Die()
