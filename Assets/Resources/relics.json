@@ -86,7 +86,7 @@
         "trigger": {
             "description": "After moving 50 units",
             "type": "distance-moved",
-            "amount": "50"
+            "amount": "5"
         },
         "effect": {
             "description": "your next spell gains 50 additional spellpower.",
@@ -101,7 +101,7 @@
         "trigger": {
             "description": "While standing still",
             "type": "stand-still",
-            "amount":  "25"
+            "amount":  "3"
         },
         "effect": {
             "description": "gain increased mana regeneration.",
@@ -134,7 +134,7 @@
         },
         "effect": {
             "description": "have a chance to heal.",
-            "type":  "gain-maxhp",
+            "type":  "gain-heal",
             "amount": "2",
             "chance": "0.1667"
         }

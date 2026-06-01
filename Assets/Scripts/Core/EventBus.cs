@@ -66,6 +66,13 @@ public class EventBus
         OnPlayerMove?.Invoke(movement);
     }
 
+    public event Action<float> OnDistanceMoved;
+
+    public void DistanceMoved(float distance)
+    {
+        OnDistanceMoved?.Invoke(distance);
+    }
+
     // =========================
     // WAVE COMPLETE
     // =========================

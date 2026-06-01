@@ -28,6 +28,9 @@ public static class RelicFactory
             case "gain-maxhp":
                 return new GainMaxHpEffect(data);
 
+            case "gain-heal":
+                return new GainHealEffect(data);
+
             default:
                 Debug.LogError("Unknown relic effect: " + data.effect.type);
                 return null;
@@ -52,6 +55,9 @@ public static class RelicFactory
 
             case "deal-damage":
                 return new DealDamageTrigger(relic);
+
+            case "distance-moved":
+                return new DistanceMovedTrigger(relic);
 
             default:
                 Debug.LogError("Unknown relic trigger: " + data.trigger.type);

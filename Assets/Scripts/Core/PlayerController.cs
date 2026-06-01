@@ -76,7 +76,6 @@ public class PlayerController : MonoBehaviour
     // bonus fields
     private int relicBonusSpellPower = 0;
     private float stationaryTimer = 0f;
-    private float distanceMoved = 0f;
     private Vector3 previousPosition;
 
     // active relic tracker
@@ -92,7 +91,7 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.player = gameObject;
         LoadCharacterClasses();
         LoadRelicCatalog();
-        GrantRelicByName("Jade Elephant");
+        GrantRelicByName("Swift Steel");
         EventBus.Instance.OnDamage += OnDamageEvent;
         EventBus.Instance.OnEnemyKilled += OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
@@ -618,16 +617,6 @@ public class PlayerController : MonoBehaviour
     {
         HandleStandStillRelics();
 
-        distanceMoved +=
-                Vector3.Distance(
-                    transform.position,
-                    previousPosition
-                );
-        
-        previousPosition = transform.position;
-
-        HandleDistanceRelics();
-
         if (spellcaster == null || Keyboard.current == null)
         {
             return;
@@ -698,43 +687,6 @@ public class PlayerController : MonoBehaviour
             if (stationaryTimer >= required
                 && !activeTemporaryRelics.Contains(relic))
             {
-                ApplyRelicEffect(relic);
-            }
-        }
-    }
-
-    private void HandleDistanceRelics()
-    {
-        foreach (RelicData relic in grantedRelics)
-        {
-            if (relic == null)
-            {
-                continue;
-            }
-
-            if (!string.Equals(
-                relic.trigger?.type,
-                "distance-moved",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            float required = 0f;
-
-            float.TryParse(
-                relic.trigger.amount,
-                out required
-            );
-
-            if (distanceMoved >= required)
-            {
-                distanceMoved = 0f;
-
-                Debug.Log(
-                    "[RELIC TRIGGER] distance-moved"
-                );
-
                 ApplyRelicEffect(relic);
             }
         }
