@@ -1,3 +1,6 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+
 public enum ElementPath
 {
     Arcane,
@@ -79,5 +82,59 @@ public class SkillTreeManager
             default:
                 return Damage.Type.ARCANE;
         }
+    }
+
+    public int GetSpellPowerBonus()
+        {
+            return spellPowerLevels * 10;
+        }
+
+    public int GetManaBonus()
+    {
+        return manaLevels * 25;
+    }
+
+    public int GetMoveSpeedBonus()
+    {
+        return moveSpeedLevels * 1;
+    }
+
+    public float GetFreezeDurationBonus()
+    {
+        return freezeDurationLevels * 0.5f;
+    }
+
+    public int GetBurnDamageBonus()
+    {
+        return burnDamageLevels * 5;
+    }
+
+    public bool UnlockSpellPower()
+    {
+        if (currentPath != ElementPath.Arcane)
+        {
+            return false;
+        }
+
+        if (skillPoints <= 0)
+        {
+            return false;
+        }
+
+        if (spellPowerLevels >= 5)
+        {
+            return false;
+        }
+
+        PlayerController player = GameManager.Instance.player.GetComponent<PlayerController>();
+
+        skillPoints--;
+        spellPowerLevels++;
+
+        player.RefreshSkillTreeStats();
+
+        Debug.Log("Purchased Arcane Power. Level = " + spellPowerLevels);
+
+        return true;
     }
 }

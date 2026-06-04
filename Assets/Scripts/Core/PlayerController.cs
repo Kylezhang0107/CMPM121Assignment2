@@ -200,10 +200,31 @@ public class PlayerController : MonoBehaviour
 
     public void RefreshRelicStats()
     {
-        if (spellcaster != null)
+        if (spellcaster == null)
         {
-            spellcaster.RebuildSpells();
+            return;
         }
+
+        spellcaster.RebuildSpells();
+    }
+
+    public void RefreshSkillTreeStats()
+    {
+        if (spellcaster == null)
+        {
+            return;
+        }
+
+        int basePower = 10;
+
+        if (characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
+        {
+            basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
+        }
+
+        spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
+
+        spellcaster.RebuildSpells();
     }
 
     public void AddSpellPowerBonus(int amount)

@@ -42,7 +42,16 @@ public class SkillTreeTester : MonoBehaviour
         {
             if (Keyboard.current.iKey.wasPressedThisFrame)
             {
-                Debug.Log("I pressed");
+                bool success = SkillTreeManager.Instance.UnlockSpellPower();
+
+                Debug.Log(
+                    "Arcane Power purchased = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.spellPowerLevels +
+                    " | Points = " +
+                    SkillTreeManager.Instance.skillPoints
+                );
             }
 
             if (Keyboard.current.oKey.wasPressedThisFrame)
