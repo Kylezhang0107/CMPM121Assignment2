@@ -8,8 +8,8 @@ public enum ElementPath
 public class SkillTreeManager
 {
     private static SkillTreeManager instance;
-    public static SkillTreeManager Instance =>
-        instance ??= new SkillTreeManager();
+
+    public static SkillTreeManager Instance => instance ??= new SkillTreeManager();
 
     public int skillPoints;
 
@@ -31,4 +31,53 @@ public class SkillTreeManager
     public int moveSpeedLevels;
     public int burnDurationLevels;
     public int burnDamageLevels;
+
+    public void AddSkillPoint()
+    {
+        skillPoints++;
+    }
+
+    public bool SpendSkillPoint()
+    {
+        if (skillPoints <= 0)
+        {
+            return false;
+        }
+
+        skillPoints--;
+        return true;
+    }
+
+    public bool ChoosePath(ElementPath path)
+    {
+        if (pathChosen)
+        {
+            return false;
+        }
+
+        if (!SpendSkillPoint())
+        {
+            return false;
+        }
+
+        currentPath = path;
+        pathChosen = true;
+
+        return true;
+    }
+
+    public Damage.Type GetDamageType()
+    {
+        switch (currentPath)
+        {
+            case ElementPath.Fire:
+                return Damage.Type.FIRE;
+
+            case ElementPath.Ice:
+                return Damage.Type.ICE;
+
+            default:
+                return Damage.Type.ARCANE;
+        }
+    }
 }
