@@ -142,12 +142,13 @@ public class Spell
     }
 
     public virtual void OnHit(Hittable other, Vector3 impact)
+{
+    if (other.team != team)
     {
-        if (other.team != team)
-        {
-            other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE, GameManager.Instance.player));
-        }
+        Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
+        other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
     }
+}
 
     public virtual void ApplyModifier(SpellData modifierData, int power = 0, int wave = 1)
     {
