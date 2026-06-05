@@ -30,7 +30,7 @@ public class HealOnDamageSkill : MonoBehaviour
 
         PlayerController pc = player.GetComponent<PlayerController>();
 
-        pc.hp.hp = Mathf.Min(pc.hp.max_hp, pc.hp.hp + 5);
+        pc.hp.hp = Mathf.Min(pc.hp.max_hp, pc.hp.hp + 25);
         pc.healthui.SetHealth(pc.hp);
     }
 }

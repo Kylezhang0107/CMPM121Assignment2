@@ -143,6 +143,7 @@ public class Spell
         {
             Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
             other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
+            ApplyElementalEffect(other, damageType);
         }
     }
 
@@ -212,6 +213,49 @@ public class Spell
         };
 
         return RPNEvaluator.RPNEvaluator.Evaluatef(expression, vars);
+    }
+
+    private void ApplyElementalEffect(Hittable other, Damage.Type damageType)
+    {
+        GameObject target = other.owner;
+
+        if (target == null)
+        {
+            return;
+        }
+
+        if (damageType == Damage.Type.ICE)
+        {
+            IceSlowEffect slow =
+                target.GetComponent<IceSlowEffect>();
+
+            if (slow == null)
+            {
+                slow = target.AddComponent<IceSlowEffect>();
+            }
+
+            slow.Apply(
+                SkillTreeManager.Instance.GetFreezeDuration(),
+                SkillTreeManager.Instance.GetFreezeSlowAmount()
+            );
+        }
+        /*
+        if (damageType == Damage.Type.FIRE)
+        {
+            BurnEffect burn =
+                target.GetComponent<BurnEffect>();
+
+            if (burn == null)
+            {
+                burn = target.AddComponent<BurnEffect>();
+            }
+
+            burn.Apply(
+                SkillTreeManager.Instance.GetBurnDuration(),
+                SkillTreeManager.Instance.GetBurnTickDamage()
+            );
+        }
+        */
     }
 
 }

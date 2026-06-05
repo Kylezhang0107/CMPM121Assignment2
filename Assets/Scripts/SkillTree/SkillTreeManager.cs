@@ -107,24 +107,24 @@ public class SkillTreeManager
         return healChanceLevels * 0.05f;
     }
 
-    public int GetManaBonus()
+        public float GetFreezeDuration()
     {
-        return manaLevels * 25;
+        return 3f + (freezeDurationLevels * 2f);
     }
 
-    public int GetMoveSpeedBonus()
+    public float GetFreezeSlowAmount()
     {
-        return moveSpeedLevels * 1;
+        return 0.20f + (freezePotencyLevels * 0.10f);
     }
 
-    public float GetFreezeDurationBonus()
+    public float GetBurnDuration()
     {
-        return freezeDurationLevels * 0.5f;
+        return 3f + (burnDurationLevels * 2f);
     }
 
-    public int GetBurnDamageBonus()
+    public int GetBurnTickDamage()
     {
-        return burnDamageLevels * 5;
+        return 3 + (burnDamageLevels * 3);
     }
 
     public bool UnlockSpellPower()
@@ -189,6 +189,96 @@ public class SkillTreeManager
         healChanceLevels++;
 
         Debug.Log("Purchased Heal Chance. Level = " + healChanceLevels);
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockMana()
+    {
+        if (currentPath != ElementPath.Ice)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        manaLevels++;
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockFreezeDuration()
+    {
+        if (currentPath != ElementPath.Ice)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        freezeDurationLevels++;
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockFreezePotency()
+    {
+        if (currentPath != ElementPath.Ice)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        freezePotencyLevels++;
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockMoveSpeed()
+    {
+        if (currentPath != ElementPath.Fire)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        moveSpeedLevels++;
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockBurnDuration()
+    {
+        if (currentPath != ElementPath.Fire)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        burnDurationLevels++;
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockBurnDamage()
+    {
+        if (currentPath != ElementPath.Fire)
+            return false;
+
+        if (!SpendSkillPoint())
+            return false;
+
+        burnDamageLevels++;
 
         NotifyChanged();
 
