@@ -241,7 +241,7 @@ public class Spell
                 SkillTreeManager.Instance.GetFreezeSlowAmount()
             );
         }
-        /*
+
         if (damageType == Damage.Type.FIRE)
         {
             BurnEffect burn =
@@ -253,11 +253,12 @@ public class Spell
             }
 
             burn.Apply(
+                other,
                 SkillTreeManager.Instance.GetBurnDuration(),
                 SkillTreeManager.Instance.GetBurnTickDamage()
             );
         }
-        */
+        
     }
 
     private Color GetProjectileTint()

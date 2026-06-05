@@ -138,19 +138,5 @@
             "amount": "2",
             "chance": "0.1667"
         }
-    },
-    { 
-        "name": "Porcelain Cat",
-        "sprite": 15,
-        "trigger": {
-            "description": "While on cooldown",
-            "type": "cooldown"
-        },
-        "effect": {
-            "description": "increase movement speed.",
-            "type":  "gain-speed",
-            "amount": "+5",
-            "until":  "coolup"
-        }
     }
 ]

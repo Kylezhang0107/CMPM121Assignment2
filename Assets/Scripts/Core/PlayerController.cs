@@ -643,7 +643,8 @@ public class PlayerController : MonoBehaviour
     {
         if (unit != null)
         {
-            unit.movement = moveInput * speed;
+            float finalSpeed = speed * SkillTreeManager.Instance.GetMoveSpeedBonusMultiplier();
+            unit.movement = moveInput * finalSpeed;
         }
 
         HandleStandStillRelics();

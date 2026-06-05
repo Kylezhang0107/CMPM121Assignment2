@@ -1,52 +1,44 @@
-/*
 using UnityEngine;
 using System.Collections;
 
 public class BurnEffect : MonoBehaviour
 {
-    private bool burning;
+    private Coroutine burnRoutine;
 
-    public void Apply(float duration, int damagePerTick)
+    public void Apply(Hittable targetHp, float duration, int damagePerTick)
     {
-        if (burning)
+        if (burnRoutine != null)
         {
-            return;
+            StopCoroutine(burnRoutine);
         }
 
-        StartCoroutine(BurnRoutine(duration, damagePerTick));
+        burnRoutine = StartCoroutine(BurnRoutine(targetHp, duration, damagePerTick));
     }
 
-    private IEnumerator BurnRoutine(float duration, int damagePerTick)
+    private IEnumerator BurnRoutine(Hittable targetHp, float duration, int damagePerTick)
     {
-        burning = true;
-
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+        if (sr == null)
+        {
+            yield break;
+        }
 
         Color originalColor = sr.color;
         sr.color = Color.red;
-
-        Hittable hp = GetComponent<HittableComponent>().hp;
 
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
-            hp.Damage(
-                new Damage(
-                    damagePerTick,
-                    Damage.Type.FIRE,
-                    GameManager.Instance.player
-                )
-            );
+            targetHp.Damage(new Damage(damagePerTick, Damage.Type.FIRE, GameManager.Instance.player));
 
             yield return new WaitForSeconds(0.5f);
-
             elapsed += 0.5f;
         }
 
         sr.color = originalColor;
 
-        burning = false;
+        burnRoutine = null;
     }
 }
-*/

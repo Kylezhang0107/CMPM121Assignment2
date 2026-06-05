@@ -120,20 +120,38 @@ public class SkillTreeTester : MonoBehaviour
 
         // Fire upgrades
         else if (SkillTreeManager.Instance.currentPath == ElementPath.Fire)
-        {
+        {   
             if (Keyboard.current.iKey.wasPressedThisFrame)
-            {
-                Debug.Log("Fire Upgrade 1");
+            {   
+                bool success = SkillTreeManager.Instance.UnlockMoveSpeed();
+                Debug.Log(
+                    "Move Speed = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.moveSpeedLevels
+                );
             }
 
             if (Keyboard.current.oKey.wasPressedThisFrame)
-            {
-                Debug.Log("Fire Upgrade 2");
+            {   
+                bool success = SkillTreeManager.Instance.UnlockBurnDuration();
+                Debug.Log(
+                    "Burn Duration = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.burnDurationLevels
+                );
             }
 
             if (Keyboard.current.pKey.wasPressedThisFrame)
-            {
-                Debug.Log("Fire Upgrade 3");
+            {   
+                bool success = SkillTreeManager.Instance.UnlockBurnDamage();
+                 Debug.Log(
+                    "Burn Damage = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.burnDamageLevels
+                );
             }
         }
     }

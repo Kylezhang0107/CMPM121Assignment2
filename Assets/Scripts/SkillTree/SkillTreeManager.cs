@@ -132,6 +132,11 @@ public class SkillTreeManager
         return 3 + (burnDamageLevels * 3);
     }
 
+    public float GetMoveSpeedBonusMultiplier()
+    {
+        return 1f + (moveSpeedLevels * 0.25f);
+    }
+
     public bool UnlockSpellPower()
     {
         if (currentPath != ElementPath.Arcane)
