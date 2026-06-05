@@ -574,6 +574,8 @@ public class PlayerController : MonoBehaviour
         int manaRegen = EvaluateClassStat(classData.mana_regeneration, wave, 10);
         int power = EvaluateClassStat(classData.spellpower, wave, 10);
         int moveSpeed = EvaluateClassStat(classData.speed, wave, 5);
+        int treeManaBonus = SkillTreeManager.Instance.GetManaBonus();
+        int treePowerBonus = SkillTreeManager.Instance.GetSpellPowerBonus();
 
         // movement speed
         speed = moveSpeed;
@@ -603,9 +605,9 @@ public class PlayerController : MonoBehaviour
         {
             spellcaster =
                 new SpellCaster(
-                    mana,
+                    mana + treeManaBonus,
                     manaRegen,
-                    power,
+                    power + relicBonusSpellPower + treePowerBonus,
                     Hittable.Team.PLAYER
                 );
 
@@ -615,10 +617,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            spellcaster.max_mana = mana;
+            spellcaster.max_mana = mana + treeManaBonus;
             spellcaster.mana = mana;
             spellcaster.mana_reg = manaRegen;
-            spellcaster.spellPower = power + relicBonusSpellPower;
+            spellcaster.spellPower = power + relicBonusSpellPower + treePowerBonus;
 
             // IMPORTANT:
             // rebuild spells using new power
@@ -764,7 +766,7 @@ public class PlayerController : MonoBehaviour
                     basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
                 }
 
-                spellcaster.spellPower = basePower + relicBonusSpellPower;
+                spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
 
                 spellcaster.RebuildSpells();
             }
