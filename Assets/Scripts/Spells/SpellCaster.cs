@@ -157,6 +157,7 @@ public class SpellCaster
 
             int oldPower = baseSpell.lastProgressionPower;
             int newPower = spellPower;
+            Debug.Log("Rebuilding with power " + newPower);
             
             if (oldPower != newPower)
             {
@@ -202,6 +203,7 @@ public class SpellCaster
                 }
                 baseSpell.cooldown = Mathf.Max(0.05f, baseSpell.cooldown + cooldownGain);
                 Spell rebuilt = builder.BuildSpecific(this, baseSpell.spellId, newPower, wave);
+                rebuilt.lastProgressionPower = newPower;
                 spells[i] = rebuilt;
                 if (baseSpell.secondaryProjectileSpeed > 0f)
                 {
@@ -210,8 +212,6 @@ public class SpellCaster
 
                 baseSpell.lastProgressionPower = newPower;
             }
-
-            spells[i] = currentSpell;
         }
     }
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public enum ElementPath
 {
@@ -13,6 +14,8 @@ public class SkillTreeManager
     private static SkillTreeManager instance;
 
     public static SkillTreeManager Instance => instance ??= new SkillTreeManager();
+
+    public event Action OnSkillsChanged;
 
     public int skillPoints;
 
@@ -69,6 +72,11 @@ public class SkillTreeManager
         return true;
     }
 
+    private void NotifyChanged()
+    {
+        OnSkillsChanged?.Invoke();
+    }
+
     public Damage.Type GetDamageType()
     {
         switch (currentPath)
@@ -88,6 +96,16 @@ public class SkillTreeManager
         {
             return spellPowerLevels * 10;
         }
+
+    public float GetSpellSpeedMultiplier()
+    {
+        return 1f + (spellSpeedLevels * 0.05f);
+    }
+
+    public float GetHealChance()
+    {
+        return healChanceLevels * 0.05f;
+    }
 
     public int GetManaBonus()
     {
@@ -121,19 +139,58 @@ public class SkillTreeManager
             return false;
         }
 
-        if (spellPowerLevels >= 5)
+        skillPoints--;
+        spellPowerLevels++;
+        Debug.Log(
+        "Levels=" + spellPowerLevels +
+        " Bonus=" + GetSpellPowerBonus()
+    );
+
+        Debug.Log("Purchased Arcane Power. Level = " + spellPowerLevels);
+
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockSpellSpeed()
+    {
+        if (currentPath != ElementPath.Arcane)
         {
             return false;
         }
 
-        PlayerController player = GameManager.Instance.player.GetComponent<PlayerController>();
+        if (!SpendSkillPoint())
+        {
+            return false;
+        }
 
-        skillPoints--;
-        spellPowerLevels++;
+        spellSpeedLevels++;
 
-        player.RefreshSkillTreeStats();
+        Debug.Log("Purchased Spell Speed. Level = " + spellSpeedLevels);
 
-        Debug.Log("Purchased Arcane Power. Level = " + spellPowerLevels);
+        NotifyChanged();
+
+        return true;
+    }
+
+    public bool UnlockHealChance()
+    {
+        if (currentPath != ElementPath.Arcane)
+        {
+            return false;
+        }
+
+        if (!SpendSkillPoint())
+        {
+            return false;
+        }
+
+        healChanceLevels++;
+
+        Debug.Log("Purchased Heal Chance. Level = " + healChanceLevels);
+
+        NotifyChanged();
 
         return true;
     }

@@ -86,6 +86,7 @@ public class PlayerController : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        SkillTreeManager.Instance.OnSkillsChanged += RefreshSkillTreeStats;
         unit = GetComponent<Unit>();
         previousPosition = transform.position;
         GameManager.Instance.player = gameObject;
@@ -101,6 +102,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDestroy()
     {
+        SkillTreeManager.Instance.OnSkillsChanged -= RefreshSkillTreeStats;
         EventBus.Instance.OnDamage -= OnDamageEvent;
         EventBus.Instance.OnEnemyKilled -= OnEnemyKilledEvent;
         EventBus.Instance.OnSpellCast -= OnSpellCastEvent;
@@ -219,11 +221,10 @@ public class PlayerController : MonoBehaviour
 
         if (characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
         {
-            basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
+            basePower = EvaluateClassStat(classData.spellpower, Mathf.Max(1, GameManager.Instance.currentWave), 10);
         }
 
         spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
-
         spellcaster.RebuildSpells();
     }
 

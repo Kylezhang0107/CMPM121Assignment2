@@ -91,15 +91,11 @@ public class Spell
     public virtual IEnumerator Cast(Vector3 where, Vector3 target, Hittable.Team team)
     {
         this.team = team;
-        SpawnProjectile(
-            projectileSprite,
-            projectileTrajectory,
-            where,
-            target - where,
-            projectileSpeed,
-            OnHit,
-            projectileLifetime
-        );
+
+        float finalProjectileSpeed = projectileSpeed * SkillTreeManager.Instance.GetSpellSpeedMultiplier();
+
+        SpawnProjectile(projectileSprite, projectileTrajectory, where, target - where, finalProjectileSpeed, OnHit, projectileLifetime);
+
         yield return new WaitForEndOfFrame();
     }
 
@@ -142,13 +138,13 @@ public class Spell
     }
 
     public virtual void OnHit(Hittable other, Vector3 impact)
-{
-    if (other.team != team)
     {
-        Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
-        other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
+        if (other.team != team)
+        {
+            Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
+            other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
+        }
     }
-}
 
     public virtual void ApplyModifier(SpellData modifierData, int power = 0, int wave = 1)
     {
