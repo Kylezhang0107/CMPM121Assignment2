@@ -217,16 +217,19 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
+        int wave = Mathf.Max(1, GameManager.Instance.currentWave);
         int basePower = 10;
+        int baseMana = 100;
 
         if (characterClasses.TryGetValue(selectedCharacterClass, out CharacterClassData classData))
         {
-            basePower = EvaluateClassStat(classData.spellpower, Mathf.Max(1, GameManager.Instance.currentWave), 10);
+            basePower = EvaluateClassStat(classData.spellpower, wave, 10);
+            baseMana = EvaluateClassStat(classData.mana, wave, 100);
         }
 
         spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
         int manaBonus = SkillTreeManager.Instance.GetManaBonus();
-        spellcaster.max_mana =EvaluateClassStat(classData.mana, Mathf.Max(1, GameManager.Instance.currentWave), 100) + manaBonus;
+        spellcaster.max_mana = baseMana + manaBonus;
         spellcaster.mana = Mathf.Min(spellcaster.mana, spellcaster.max_mana);
         manaui.SetSpellCaster(spellcaster);
         spellcaster.RebuildSpells();
@@ -242,7 +245,7 @@ public class PlayerController : MonoBehaviour
             basePower = EvaluateClassStat(classData.spellpower, GameManager.Instance.currentWave, 10);
         }
 
-        spellcaster.spellPower = basePower + relicBonusSpellPower;
+        spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
         spellcaster.RebuildSpells();
     }
 
