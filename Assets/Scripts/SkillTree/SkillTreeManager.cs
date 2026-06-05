@@ -117,6 +117,11 @@ public class SkillTreeManager
         return 0.20f + (freezePotencyLevels * 0.10f);
     }
 
+    public int GetManaBonus()
+    {
+        return manaLevels * 25;
+    }
+
     public float GetBurnDuration()
     {
         return 3f + (burnDurationLevels * 2f);

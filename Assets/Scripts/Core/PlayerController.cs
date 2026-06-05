@@ -225,6 +225,10 @@ public class PlayerController : MonoBehaviour
         }
 
         spellcaster.spellPower = basePower + relicBonusSpellPower + SkillTreeManager.Instance.GetSpellPowerBonus();
+        int manaBonus = SkillTreeManager.Instance.GetManaBonus();
+        spellcaster.max_mana =EvaluateClassStat(classData.mana, Mathf.Max(1, GameManager.Instance.currentWave), 100) + manaBonus;
+        spellcaster.mana = Mathf.Min(spellcaster.mana, spellcaster.max_mana);
+        manaui.SetSpellCaster(spellcaster);
         spellcaster.RebuildSpells();
     }
 

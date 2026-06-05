@@ -83,17 +83,38 @@ public class SkillTreeTester : MonoBehaviour
         {
             if (Keyboard.current.iKey.wasPressedThisFrame)
             {
-                Debug.Log("Ice Upgrade 1");
+                bool success = SkillTreeManager.Instance.UnlockFreezeDuration();
+
+                Debug.Log(
+                    "Freeze Duration = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.freezeDurationLevels
+                );
             }
 
             if (Keyboard.current.oKey.wasPressedThisFrame)
             {
-                Debug.Log("Ice Upgrade 2");
+                bool success = SkillTreeManager.Instance.UnlockMana();
+
+                Debug.Log(
+                    "Mana = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.manaLevels
+                );
             }
 
             if (Keyboard.current.pKey.wasPressedThisFrame)
             {
-                Debug.Log("Ice Upgrade 3");
+                bool success = SkillTreeManager.Instance.UnlockFreezePotency();
+
+                Debug.Log(
+                    "Freeze Potency = " +
+                    success +
+                    " | Level = " +
+                    SkillTreeManager.Instance.freezePotencyLevels
+                );
             }
         }
 
