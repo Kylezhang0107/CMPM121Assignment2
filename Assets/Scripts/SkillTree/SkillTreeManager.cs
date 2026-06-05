@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System;
 
 public enum ElementPath
@@ -11,6 +10,8 @@ public enum ElementPath
 
 public class SkillTreeManager
 {
+    private const int SkillPointWaveInterval = 2;
+
     private static SkillTreeManager instance;
 
     public static SkillTreeManager Instance => instance ??= new SkillTreeManager();
@@ -38,9 +39,24 @@ public class SkillTreeManager
     public int burnDurationLevels;
     public int burnDamageLevels;
 
+    private SkillTreeManager()
+    {
+        EventBus.Instance.OnWaveComplete += HandleWaveComplete;
+    }
+
+    private void HandleWaveComplete(int wave)
+    {
+        if (wave > 0 && wave % SkillPointWaveInterval == 0)
+        {
+            AddSkillPoint();
+            Debug.Log("Skill point awarded for wave " + wave + ". Total = " + skillPoints);
+        }
+    }
+
     public void AddSkillPoint()
     {
         skillPoints++;
+        NotifyChanged();
     }
 
     public bool SpendSkillPoint()
@@ -68,6 +84,8 @@ public class SkillTreeManager
 
         currentPath = path;
         pathChosen = true;
+
+        NotifyChanged();
 
         return true;
     }
