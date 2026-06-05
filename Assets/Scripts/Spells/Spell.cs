@@ -121,7 +121,8 @@ public class Spell
             onHit,
             lifetime,
             piercing,
-            team
+            team,
+            GetProjectileTint()
         );
             return;
         }
@@ -133,7 +134,8 @@ public class Spell
             speed,
             onHit,
             piercing,
-            team
+            team,
+            GetProjectileTint()
         );
     }
 
@@ -258,4 +260,18 @@ public class Spell
         */
     }
 
+    private Color GetProjectileTint()
+    {
+        switch (SkillTreeManager.Instance.currentPath)
+        {
+            case ElementPath.Ice:
+                return Color.cyan;
+
+            case ElementPath.Fire:
+                return Color.red;
+
+            default:
+                return Color.white;
+        }
+    }
 }

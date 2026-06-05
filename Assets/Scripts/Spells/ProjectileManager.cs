@@ -17,10 +17,20 @@ public class ProjectileManager : MonoBehaviour
         
     }
 
-    public void CreateProjectile(int which, string trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit, bool piercing = false, Hittable.Team ownerTeam = Hittable.Team.PLAYER)
+    public void CreateProjectile(int which, string trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit, bool piercing = false, Hittable.Team ownerTeam = Hittable.Team.PLAYER, Color? tint = null)
     {
         GameObject new_projectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f, Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
         ProjectileController controller = new_projectile.GetComponent<ProjectileController>();
+
+        if (tint.HasValue)
+        {
+            SpriteRenderer sr = new_projectile.GetComponent<SpriteRenderer>();
+
+            if (sr != null)
+            {
+                sr.color = tint.Value;
+            }
+        }
 
         controller.movement = MakeMovement(trajectory, speed);
         controller.OnHit += onHit;
@@ -28,10 +38,20 @@ public class ProjectileManager : MonoBehaviour
         controller.ownerTeam = ownerTeam;
     }
 
-    public void CreateProjectile(int which, string trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit, float lifetime, bool piercing = false, Hittable.Team ownerTeam = Hittable.Team.PLAYER)
+    public void CreateProjectile(int which, string trajectory, Vector3 where, Vector3 direction, float speed, Action<Hittable, Vector3> onHit, float lifetime, bool piercing = false, Hittable.Team ownerTeam = Hittable.Team.PLAYER, Color? tint = null)
     {
         GameObject new_projectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f, Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
         ProjectileController controller = new_projectile.GetComponent<ProjectileController>();
+
+        if (tint.HasValue)
+        {
+            SpriteRenderer sr = new_projectile.GetComponent<SpriteRenderer>();
+
+            if (sr != null)
+            {
+                sr.color = tint.Value;
+            }
+        }
 
         controller.movement = MakeMovement(trajectory, speed);
         controller.OnHit += onHit;
