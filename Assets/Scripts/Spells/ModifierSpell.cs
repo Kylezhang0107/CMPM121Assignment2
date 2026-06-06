@@ -19,6 +19,11 @@ public class ModifierSpell : Spell
         return inner;
     }
 
+    public override Spell GetBaseSpell()
+    {
+        return inner.GetBaseSpell();
+    }
+
     public override int GetIcon()
     {
         return inner.GetIcon();

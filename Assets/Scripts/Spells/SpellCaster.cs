@@ -202,9 +202,7 @@ public class SpellCaster
                     baseSpell.secondaryDamageAmount = Mathf.Max(1, baseSpell.secondaryDamageAmount + secondaryDamageGain);
                 }
                 baseSpell.cooldown = Mathf.Max(0.05f, baseSpell.cooldown + cooldownGain);
-                Spell rebuilt = builder.BuildSpecific(this, baseSpell.spellId, newPower, wave);
-                rebuilt.lastProgressionPower = newPower;
-                spells[i] = rebuilt;
+                baseSpell.projectileSpeed = Mathf.Max(0.1f, baseSpell.projectileSpeed + projectileSpeedGain);
                 if (baseSpell.secondaryProjectileSpeed > 0f)
                 {
                     baseSpell.secondaryProjectileSpeed = Mathf.Max(0.1f, baseSpell.secondaryProjectileSpeed + secondaryProjectileSpeedGain);
