@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,15 @@ public class SkillTreeUI : MonoBehaviour
         public string title;
         public string description;
         public Vector2 position;
+    }
+
+    private class RuntimeSkillNode
+    {
+        public int index;
+        public Image background;
+        public Button button;
+        public TextMeshProUGUI titleLabel;
+        public TextMeshProUGUI descriptionLabel;
     }
 
     [Serializable]
@@ -94,6 +104,15 @@ public class SkillTreeUI : MonoBehaviour
     private Button openButton;
     private GameObject panelOverlay;
     private bool uiBuilt;
+    private readonly List<RuntimeSkillNode> runtimeNodes = new List<RuntimeSkillNode>();
+    private TextMeshProUGUI skillPointsText;
+    private TextMeshProUGUI pathText;
+    private TextMeshProUGUI hintText;
+
+    private readonly Color arcaneColor = new Color(0.46f, 0.36f, 0.74f, 1f);
+    private readonly Color iceColor = new Color(0.2f, 0.5f, 0.86f, 1f);
+    private readonly Color fireColor = new Color(0.82f, 0.28f, 0.2f, 1f);
+    private readonly Color disabledNodeColor = new Color(0.22f, 0.23f, 0.28f, 1f);
 
     private Sprite cachedButtonSkin;
     private Sprite cachedPanelSkin;
@@ -143,16 +162,19 @@ public class SkillTreeUI : MonoBehaviour
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        SkillTreeManager.Instance.OnSkillsChanged += RefreshSkillNodes;
     }
 
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        SkillTreeManager.Instance.OnSkillsChanged -= RefreshSkillNodes;
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         uiBuilt = false;
+        runtimeNodes.Clear();
 
         if (skillTreeCanvas != null)
         {
@@ -178,6 +200,11 @@ public class SkillTreeUI : MonoBehaviour
         if (!shouldShowButton && panelOverlay != null && panelOverlay.activeSelf)
         {
             panelOverlay.SetActive(false);
+        }
+
+        if (panelOverlay != null && panelOverlay.activeSelf)
+        {
+            RefreshSkillNodes();
         }
     }
 
@@ -295,11 +322,48 @@ public class SkillTreeUI : MonoBehaviour
             defaults.subtitleColor
         );
 
+        skillPointsText = CreateText(
+            "SkillPointsText",
+            cardObj.transform,
+            new Vector2(0f, 178f),
+            new Vector2(700f, 36f),
+            24f,
+            TextAlignmentOptions.Center,
+            string.Empty,
+            FontStyles.Bold,
+            new Color(0.95f, 0.91f, 0.74f, 1f)
+        );
+
+        pathText = CreateText(
+            "PathText",
+            cardObj.transform,
+            new Vector2(0f, 146f),
+            new Vector2(700f, 32f),
+            22f,
+            TextAlignmentOptions.Center,
+            string.Empty,
+            FontStyles.Bold,
+            new Color(0.9f, 0.93f, 1f, 1f)
+        );
+
+        hintText = CreateText(
+            "HintText",
+            cardObj.transform,
+            new Vector2(0f, -126f),
+            new Vector2(860f, 40f),
+            19f,
+            TextAlignmentOptions.Center,
+            string.Empty,
+            FontStyles.Normal,
+            new Color(0.85f, 0.88f, 0.96f, 1f)
+        );
+
         BuildNodesAndConnectors(cardObj.transform);
 
         Button closeButton = CreatePanelButton(cardObj.transform);
         closeButton.onClick.AddListener(ClosePanel);
 
+        RefreshSkillNodes();
         panelOverlay.SetActive(false);
     }
 
@@ -318,7 +382,7 @@ public class SkillTreeUI : MonoBehaviour
                 continue;
             }
 
-            CreateNode(parent, node);
+            CreateNode(parent, node, i);
         }
 
         for (int i = 0; i < nodes.Length - 1; i++)
@@ -334,7 +398,7 @@ public class SkillTreeUI : MonoBehaviour
         }
     }
 
-    private void CreateNode(Transform parent, SkillNodeConfig node)
+    private void CreateNode(Transform parent, SkillNodeConfig node, int index)
     {
         GameObject nodeObj = new GameObject(node.title + "Node");
         nodeObj.transform.SetParent(parent, false);
@@ -345,7 +409,11 @@ public class SkillTreeUI : MonoBehaviour
         Image image = nodeObj.AddComponent<Image>();
         image.color = defaults.nodeBackgroundColor;
 
-        CreateText(
+        Button button = nodeObj.AddComponent<Button>();
+        int capturedIndex = index;
+        button.onClick.AddListener(() => HandleNodeSelected(capturedIndex));
+
+        TextMeshProUGUI title = CreateText(
             node.title + "Title",
             nodeObj.transform,
             defaults.nodeTitlePosition,
@@ -356,8 +424,11 @@ public class SkillTreeUI : MonoBehaviour
             FontStyles.Bold,
             defaults.nodeTitleColor
         );
+        title.enableAutoSizing = true;
+        title.fontSizeMin = 16f;
+        title.fontSizeMax = defaults.nodeTitleFontSize;
 
-        CreateText(
+        TextMeshProUGUI description = CreateText(
             node.title + "Desc",
             nodeObj.transform,
             defaults.nodeDescriptionPosition,
@@ -368,6 +439,253 @@ public class SkillTreeUI : MonoBehaviour
             FontStyles.Bold,
             defaults.nodeDescriptionColor
         );
+        description.textWrappingMode = TextWrappingModes.Normal;
+        description.enableAutoSizing = true;
+        description.fontSizeMin = 14f;
+        description.fontSizeMax = defaults.nodeDescriptionFontSize;
+
+        runtimeNodes.Add(new RuntimeSkillNode
+        {
+            index = index,
+            background = image,
+            button = button,
+            titleLabel = title,
+            descriptionLabel = description
+        });
+    }
+
+    private void HandleNodeSelected(int nodeIndex)
+    {
+        SkillTreeManager manager = SkillTreeManager.Instance;
+        bool success = false;
+
+        if (!manager.pathChosen)
+        {
+            if (nodeIndex == 0)
+            {
+                success = manager.ChoosePath(ElementPath.Arcane);
+            }
+            else if (nodeIndex == 1)
+            {
+                success = manager.ChoosePath(ElementPath.Ice);
+            }
+            else if (nodeIndex == 2)
+            {
+                success = manager.ChoosePath(ElementPath.Fire);
+            }
+        }
+        else
+        {
+            if (manager.currentPath == ElementPath.Arcane)
+            {
+                if (nodeIndex == 0)
+                {
+                    success = manager.UnlockSpellPower();
+                }
+                else if (nodeIndex == 1)
+                {
+                    success = manager.UnlockSpellSpeed();
+                }
+                else if (nodeIndex == 2)
+                {
+                    success = manager.UnlockHealChance();
+                }
+            }
+            else if (manager.currentPath == ElementPath.Ice)
+            {
+                if (nodeIndex == 0)
+                {
+                    success = manager.UnlockFreezeDuration();
+                }
+                else if (nodeIndex == 1)
+                {
+                    success = manager.UnlockMana();
+                }
+                else if (nodeIndex == 2)
+                {
+                    success = manager.UnlockFreezePotency();
+                }
+            }
+            else if (manager.currentPath == ElementPath.Fire)
+            {
+                if (nodeIndex == 0)
+                {
+                    success = manager.UnlockMoveSpeed();
+                }
+                else if (nodeIndex == 1)
+                {
+                    success = manager.UnlockBurnDuration();
+                }
+                else if (nodeIndex == 2)
+                {
+                    success = manager.UnlockBurnDamage();
+                }
+            }
+        }
+
+        if (!success)
+        {
+            Debug.Log("Skill Tree purchase failed. Check path or available skill points.");
+            RefreshSkillNodes();
+            return;
+        }
+
+        RefreshSkillNodes();
+    }
+
+    private void RefreshSkillNodes()
+    {
+        if (!uiBuilt || runtimeNodes.Count == 0)
+        {
+            return;
+        }
+
+        SkillTreeManager manager = SkillTreeManager.Instance;
+
+        if (skillPointsText != null)
+        {
+            skillPointsText.text = "Skill Points: " + manager.skillPoints;
+        }
+
+        if (pathText != null)
+        {
+            pathText.text = manager.pathChosen
+                ? "Path: " + manager.currentPath
+                : "Path: Not Chosen";
+        }
+
+        if (hintText != null)
+        {
+            hintText.text = manager.pathChosen
+                ? "Spend 1 point per upgrade. I / O / P hotkeys still work for quick testing."
+                : "Choose one magic path first (cost: 1 point).";
+        }
+
+        for (int i = 0; i < runtimeNodes.Count; i++)
+        {
+            RuntimeSkillNode runtimeNode = runtimeNodes[i];
+            string nodeTitle;
+            string nodeDescription;
+            Color nodeColor;
+
+            if (!manager.pathChosen)
+            {
+                BuildPathSelectionNode(i, out nodeTitle, out nodeDescription, out nodeColor);
+            }
+            else
+            {
+                BuildUpgradeNode(manager, i, out nodeTitle, out nodeDescription, out nodeColor);
+            }
+
+            if (runtimeNode.titleLabel != null)
+            {
+                runtimeNode.titleLabel.text = nodeTitle;
+            }
+
+            if (runtimeNode.descriptionLabel != null)
+            {
+                runtimeNode.descriptionLabel.text = nodeDescription;
+            }
+
+            bool canSpend = manager.skillPoints > 0;
+            if (runtimeNode.button != null)
+            {
+                runtimeNode.button.interactable = canSpend;
+            }
+
+            if (runtimeNode.background != null)
+            {
+                runtimeNode.background.color = canSpend ? nodeColor : disabledNodeColor;
+            }
+        }
+    }
+
+    private void BuildPathSelectionNode(int index, out string title, out string description, out Color color)
+    {
+        if (index == 0)
+        {
+            title = "Arcane Power";
+            description = "Choose Arcane\nImmediate +Spell Power";
+            color = arcaneColor;
+            return;
+        }
+
+        if (index == 1)
+        {
+            title = "Cold Flow";
+            description = "Choose Ice\nApplies Freeze + Slow";
+            color = iceColor;
+            return;
+        }
+
+        title = "Fiery Stride";
+        description = "Choose Fire\nApplies Burn DoT";
+        color = fireColor;
+    }
+
+    private void BuildUpgradeNode(SkillTreeManager manager, int index, out string title, out string description, out Color color)
+    {
+        if (manager.currentPath == ElementPath.Arcane)
+        {
+            color = arcaneColor;
+            if (index == 0)
+            {
+                title = "Spell Power Lv." + manager.spellPowerLevels;
+                description = "+10 power per level\nCurrent: +" + manager.GetSpellPowerBonus();
+                return;
+            }
+
+            if (index == 1)
+            {
+                title = "Spell Speed Lv." + manager.spellSpeedLevels;
+                description = "+5% projectile speed\nCurrent: x" + manager.GetSpellSpeedMultiplier().ToString("0.00");
+                return;
+            }
+
+            title = "Heal Chance Lv." + manager.healChanceLevels;
+            description = "+5% heal chance\nCurrent: " + (manager.GetHealChance() * 100f).ToString("0") + "%";
+            return;
+        }
+
+        if (manager.currentPath == ElementPath.Ice)
+        {
+            color = iceColor;
+            if (index == 0)
+            {
+                title = "Freeze Duration Lv." + manager.freezeDurationLevels;
+                description = "+2s duration\nCurrent: " + manager.GetFreezeDuration().ToString("0.0") + "s";
+                return;
+            }
+
+            if (index == 1)
+            {
+                title = "Mana Lv." + manager.manaLevels;
+                description = "+25 max mana\nCurrent: +" + manager.GetManaBonus();
+                return;
+            }
+
+            title = "Freeze Slow Lv." + manager.freezePotencyLevels;
+            description = "+10% slow\nCurrent: " + (manager.GetFreezeSlowAmount() * 100f).ToString("0") + "%";
+            return;
+        }
+
+        color = fireColor;
+        if (index == 0)
+        {
+            title = "Move Speed Lv." + manager.moveSpeedLevels;
+            description = "+25% move speed\nCurrent: x" + manager.GetMoveSpeedBonusMultiplier().ToString("0.00");
+            return;
+        }
+
+        if (index == 1)
+        {
+            title = "Burn Duration Lv." + manager.burnDurationLevels;
+            description = "+2s burn duration\nCurrent: " + manager.GetBurnDuration().ToString("0.0") + "s";
+            return;
+        }
+
+        title = "Burn Damage Lv." + manager.burnDamageLevels;
+        description = "+3 burn tick damage\nCurrent: " + manager.GetBurnTickDamage();
     }
 
     private void CreateConnector(Transform parent, Vector2 from, Vector2 to)
@@ -483,6 +801,7 @@ public class SkillTreeUI : MonoBehaviour
     {
         if (panelOverlay != null)
         {
+            RefreshSkillNodes();
             panelOverlay.SetActive(true);
         }
     }
