@@ -516,6 +516,29 @@ public class PlayerController : MonoBehaviour
                 damage,
                 target
             );
+
+            PlayerStatusEffects effects =
+                GetComponent<PlayerStatusEffects>();
+
+            if (effects != null)
+            {
+                switch (damage.type)
+                {
+                    case Damage.Type.FIRE:
+                        effects.ApplyBurn(
+                            3f,
+                            2
+                        );
+                        break;
+
+                    case Damage.Type.ICE:
+                        effects.ApplyFreeze(
+                            2f,
+                            0.5f
+                        );
+                        break;
+                }
+            }
         }
 
         // player dealt damage
