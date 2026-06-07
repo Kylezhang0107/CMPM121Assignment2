@@ -8,4 +8,6 @@ public class Enemy
     public int hp;
     public int speed;
     public int damage;
+
+    public string damageType = "PHYSICAL";
 }
