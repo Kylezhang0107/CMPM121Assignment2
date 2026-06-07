@@ -5650,6 +5650,7 @@ GameObject:
   - component: {fileID: 1718273958}
   - component: {fileID: 1718273959}
   - component: {fileID: 1718273960}
+  - component: {fileID: 1718273961}
   m_Layer: 0
   m_Name: player
   m_TagString: unit
@@ -5859,6 +5860,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bcfeb8b3f6c6864a8fc630c7639107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealOnDamageSkill
+--- !u!114 &1718273961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718273950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b15486d07dfb53a41b7dea08b4717d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerStatusEffects
 --- !u!1 &1727109217
 GameObject:
   m_ObjectHideFlags: 0

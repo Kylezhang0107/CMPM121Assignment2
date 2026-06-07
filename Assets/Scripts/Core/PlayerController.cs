@@ -508,9 +508,16 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // player took damage
+        // player dealt damage
+        if (damage != null && damage.source == gameObject)
+        {
+            TriggerRelics("deal-damage");
+        }
+
         if (target != null && target.owner == gameObject)
         {
+            Debug.Log("Player hit by: " + damage.type);
+
             TriggerRelics(
                 "take-damage",
                 damage,
@@ -520,31 +527,27 @@ public class PlayerController : MonoBehaviour
             PlayerStatusEffects effects =
                 GetComponent<PlayerStatusEffects>();
 
+             Debug.Log("Effects component found? " + (effects != null));
+
             if (effects != null)
             {
                 switch (damage.type)
                 {
                     case Damage.Type.FIRE:
-                        effects.ApplyBurn(
-                            3f,
-                            2
-                        );
-                        break;
+                    if (damage.source != gameObject)
+                    {
+                        effects.ApplyBurn(3f, 2);
+                    }
+                    break;
 
                     case Damage.Type.ICE:
                         effects.ApplyFreeze(
-                            2f,
-                            0.5f
+                            2f,  // duration
+                            0.25f // 50% slow
                         );
                         break;
                 }
             }
-        }
-
-        // player dealt damage
-        if (damage != null && damage.source == gameObject)
-        {
-            TriggerRelics("deal-damage");
         }
     }
 

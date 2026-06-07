@@ -17,6 +17,7 @@ public class PlayerStatusEffects : MonoBehaviour
 
     public void ApplyBurn(float duration, int damagePerTick)
     {
+        Debug.Log("ApplyBurn called");
         if (burnRoutine != null)
         {
             StopCoroutine(burnRoutine);
@@ -28,7 +29,8 @@ public class PlayerStatusEffects : MonoBehaviour
     }
 
     public void ApplyFreeze(float duration, float slowAmount)
-    {
+    {   
+        Debug.Log("ApplyFreeze called");
         if (freezeRoutine != null)
         {
             StopCoroutine(freezeRoutine);
