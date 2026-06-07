@@ -480,6 +480,8 @@ public class RewardScreenManager : MonoBehaviour
 
     public void OnAcceptSpell()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (GameManager.Instance.player == null)
         {
             return;
@@ -524,6 +526,8 @@ public class RewardScreenManager : MonoBehaviour
 
     public void OnDeclineSpell()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (GameManager.Instance.player == null)
         {
             return;
@@ -760,6 +764,8 @@ public class RewardScreenManager : MonoBehaviour
 
     private void OnTakeRelic(int optionIndex)
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (relicTakenThisReward || optionIndex < 0 || optionIndex >= pendingRelicChoices.Count)
         {
             return;

@@ -227,6 +227,8 @@ public class SpellCaster
             mana -= spell.GetManaCost();
             spell.last_cast = Time.time;
 
+            AudioManager.Instance.PlaySpellFire();
+
             EventBus.Instance.SpellCooldownStarted(spell);
 
             yield return spell.Cast(

@@ -47,6 +47,9 @@ public class GameManager
     public void RemoveEnemy(GameObject enemy)
     {
         enemies.Remove(enemy);
+
+        AudioManager.Instance.PlayEnemyKilled();
+
         EventBus.Instance.EnemyKilled(enemy);
         waveEnemiesKilled++;
     }

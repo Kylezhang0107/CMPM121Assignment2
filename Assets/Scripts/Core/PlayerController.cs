@@ -829,6 +829,8 @@ public class PlayerController : MonoBehaviour
 
     void Die()
     {
+        AudioManager.Instance.PlayLose();
+
         Debug.Log("You Lost!");
         GameManager.Instance.state = GameManager.GameState.GAMEOVER;
     }

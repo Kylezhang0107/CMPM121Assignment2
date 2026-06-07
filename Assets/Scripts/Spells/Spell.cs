@@ -144,6 +144,9 @@ public class Spell
         if (other.team != team)
         {
             Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
+
+            AudioManager.Instance.PlaySpellHit();
+
             other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
             ApplyElementalEffect(other, damageType);
         }
