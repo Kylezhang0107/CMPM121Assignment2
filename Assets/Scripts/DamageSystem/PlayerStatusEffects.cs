@@ -12,12 +12,14 @@ public class PlayerStatusEffects : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<PlayerController>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
+
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
     }
 
     public void ApplyBurn(float duration, int damagePerTick)
     {
-        Debug.Log("ApplyBurn called");
+
         if (burnRoutine != null)
         {
             StopCoroutine(burnRoutine);
@@ -29,8 +31,8 @@ public class PlayerStatusEffects : MonoBehaviour
     }
 
     public void ApplyFreeze(float duration, float slowAmount)
-    {   
-        Debug.Log("ApplyFreeze called");
+    {
+
         if (freezeRoutine != null)
         {
             StopCoroutine(freezeRoutine);
@@ -43,8 +45,13 @@ public class PlayerStatusEffects : MonoBehaviour
 
     private IEnumerator BurnRoutine(float duration, int damagePerTick)
     {
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = Color.red;
+        Color originalColor = Color.white;
+
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+            spriteRenderer.color = Color.red;
+        }
 
         float elapsed = 0f;
 
@@ -62,7 +69,11 @@ public class PlayerStatusEffects : MonoBehaviour
             elapsed += 0.5f;
         }
 
-        spriteRenderer.color = originalColor;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
+
         burnRoutine = null;
     }
 
@@ -74,13 +85,22 @@ public class PlayerStatusEffects : MonoBehaviour
             originalSpeed * (1f - slowAmount)
         );
 
-        Color originalColor = spriteRenderer.color;
-        spriteRenderer.color = Color.cyan;
+        Color originalColor = Color.white;
+
+        if (spriteRenderer != null)
+        {
+            originalColor = spriteRenderer.color;
+            spriteRenderer.color = Color.cyan;
+        }
 
         yield return new WaitForSeconds(duration);
 
         player.speed = originalSpeed;
-        spriteRenderer.color = originalColor;
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = originalColor;
+        }
 
         freezeRoutine = null;
     }
