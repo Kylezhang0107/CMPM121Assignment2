@@ -11,6 +11,7 @@ using TMPro;
 
 public class EnemySpawner : MonoBehaviour
 {
+    public static EnemySpawner Instance;
     public Image level_selector;
     public GameObject button;
     public GameObject enemy;
@@ -31,7 +32,8 @@ public class EnemySpawner : MonoBehaviour
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
-    {
+    {   
+        Instance = this;
         enemiesByType = EnemyJsonLoader.LoadEnemies();
         levels = LevelsJsonLoader.LoadLevels();
         LoadCharacterClasses();
@@ -198,6 +200,26 @@ public class EnemySpawner : MonoBehaviour
         GameManager.Instance.waveEnemiesKilled = 0;
         int wave = currentWave;
 
+
+        if (wave % 3 == 0)
+        {
+            int cycle = ((wave - 3) / 9) + 1;
+
+            if (wave % 9 == 3)
+                SpawnSpecial("wendigo", cycle);
+
+            if (wave % 9 == 6)
+                SpawnSpecial("minotaur", cycle);
+
+            if (wave % 9 == 0)
+                SpawnSpecial("pyromancer", cycle);
+        }
+
+        if (Random.Range(0, 8) == 0)
+        {
+            SpawnSpecial("leprachaun", 1);
+        }
+
         foreach (Spawn spawn in currentLevel.spawns)
         {
             activeSpawnCoroutines++;
@@ -345,7 +367,66 @@ public class EnemySpawner : MonoBehaviour
         en.attackDamage = damage;
         en.attackType = System.Enum.TryParse<Damage.Type>(baseEnemy.damageType, true, out Damage.Type parsedType) ? parsedType: Damage.Type.PHYSICAL;
         en.movementType = baseEnemy.movement;
+        en.summonEnemy = baseEnemy.summon;
 
         GameManager.Instance.AddEnemy(new_enemy);
+    }
+
+    public GameObject SpawnEnemyAtPosition(string enemyName, Vector3 position)
+    {
+        if (!enemiesByType.TryGetValue(enemyName, out Enemy baseEnemy))
+        {
+            Debug.LogError($"Enemy not found: {enemyName}");
+            return null;
+        }
+
+        GameObject new_enemy = Instantiate(enemy, position, Quaternion.identity);
+
+        new_enemy.transform.localScale = Vector3.one * baseEnemy.scale;
+
+        if (baseEnemy.light)
+        {
+            GameObject light = Instantiate(enemyLightPrefab, new_enemy.transform);
+            light.transform.localPosition = Vector3.zero;
+        }
+
+        new_enemy.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.enemySpriteManager.Get(baseEnemy.sprite);
+
+        EnemyController en = new_enemy.GetComponent<EnemyController>();
+
+        en.hp = new Hittable(baseEnemy.hp, Hittable.Team.MONSTERS, new_enemy);
+        en.speed = baseEnemy.speed;
+        en.attackDamage = baseEnemy.damage;
+
+        en.attackType = System.Enum.TryParse<Damage.Type>(baseEnemy.damageType, true, out Damage.Type parsedType) ? parsedType : Damage.Type.PHYSICAL;
+
+        en.movementType = baseEnemy.movement;
+        en.summonEnemy = baseEnemy.summon;
+
+        GameManager.Instance.AddEnemy(new_enemy);
+
+        return new_enemy;
+    }
+
+    void SpawnSpecial(string enemyName, int count)
+    {
+        if (!enemiesByType.TryGetValue(enemyName, out Enemy baseEnemy))
+        {
+            Debug.LogError($"Enemy not found: {enemyName}");
+            return;
+        }
+
+        Spawn fakeSpawn = new Spawn()
+        {
+            hp = "base",
+            damage = "base",
+            speed = "base",
+            location = "random"
+        };
+
+        for (int i = 0; i < count; i++)
+        {
+            SpawnEnemy(fakeSpawn, baseEnemy, currentWave);
+        }
     }
 }

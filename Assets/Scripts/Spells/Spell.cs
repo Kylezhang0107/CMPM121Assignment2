@@ -220,7 +220,7 @@ public class Spell
         return RPNEvaluator.RPNEvaluator.Evaluatef(expression, vars);
     }
 
-    private void ApplyElementalEffect(Hittable other, Damage.Type damageType)
+    protected void ApplyElementalEffect(Hittable other, Damage.Type damageType)
     {
         GameObject target = other.owner;
 

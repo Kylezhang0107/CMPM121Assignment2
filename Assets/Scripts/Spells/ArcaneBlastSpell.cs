@@ -34,7 +34,7 @@ public class ArcaneBlastSpell : Spell
     {
         if (other.team != team)
         {
-            other.Damage(new Damage(GetDamage(), Damage.Type.ARCANE));
+            other.Damage(new Damage(GetDamage(), SkillTreeManager.Instance.GetDamageType()));
         }
 
         float angleStep = 360f / splitCount;
@@ -58,7 +58,7 @@ public class ArcaneBlastSpell : Spell
     {
         if (other.team != team)
         {
-            other.Damage(new Damage(splitDamage, Damage.Type.ARCANE));
+            other.Damage(new Damage(splitDamage, SkillTreeManager.Instance.GetDamageType()));
         }
     }
 }

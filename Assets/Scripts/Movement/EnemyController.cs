@@ -18,6 +18,8 @@ public class EnemyController : MonoBehaviour
     private float dashTimer = 0f;
     private Vector3 dashDirection;
     public string movementType = "chase";
+    public string summonEnemy;
+    public bool summonCheckedThisIdle;
     public Damage.Type attackType = Damage.Type.PHYSICAL;
 
     public float last_attack;
@@ -57,7 +59,7 @@ public class EnemyController : MonoBehaviour
                 break;
 
             case "phase":
-                MovementTypes.Phase(unit, transform, GetComponent<SpriteRenderer>(), GetComponent<Collider2D>(), ref isPhasing, ref phaseTimer, ref phaseDirection, speed);
+                MovementTypes.Phase(unit, transform, GetComponent<SpriteRenderer>(), GetComponent<Collider2D>(), this, ref isPhasing, ref phaseTimer, ref phaseDirection, speed);
                 break;
 
             case "scary":

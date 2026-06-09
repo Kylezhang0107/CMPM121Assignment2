@@ -23,6 +23,40 @@
                 "count": "wave 5 / 1 wave 5 % - *",
                 "hp": "100 25 wave * +",
                 "location": "random bone"
+            },
+            {
+                "enemy": "wendigo",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random bone"
+            },
+            {
+                "enemy": "minotaur",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random"
+            },
+            {
+                "enemy": "pyromancer",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random red"
+            },
+            {
+                "enemy": "leprachaun",
+                "count": "0",
+                "hp": "20 wave *",
+                "damage": "base 10 +",
+                "location": "random"
+            },
+            {
+                "enemy": "skull",
+                "count": "wave 6 - 3 /",
+                "hp": "base 10 wave * +",
+                "location": "random red"
             }
         ]
    },
@@ -54,10 +88,37 @@
             },
             {
                 "enemy": "wendigo",
-                "count": "wave 5 / 1 wave 5 % - *",
+                "count": "0",
                 "hp": "75 50 wave * +",
                 "damage": "base 10 +",
                 "location": "random bone"
+            },
+            {
+                "enemy": "minotaur",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random"
+            },
+            {
+                "enemy": "pyromancer",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random red"
+            },
+            {
+                "enemy": "leprachaun",
+                "count": "0",
+                "hp": "20 wave *",
+                "damage": "base 10 +",
+                "location": "random"
+            },
+            {
+                "enemy": "skull",
+                "count": "wave 6 - 3 /",
+                "hp": "base 10 wave * +",
+                "location": "random red"
             }
         ]
    },
@@ -88,24 +149,37 @@
             },
             {
                 "enemy": "wendigo",
-                "count": "wave 5 / 1 wave 5 % - *",
+                "count": "0",
                 "hp": "75 50 wave * +",
                 "damage": "base 10 +",
                 "location": "random bone"
             },
             {
                 "enemy": "minotaur",
-                "count": "wave 5 / 1 wave 5 % - *",
+                "count": "0",
                 "hp": "75 50 wave * +",
                 "damage": "base 10 +",
-                "location": "random bone"
+                "location": "random"
+            },
+            {
+                "enemy": "pyromancer",
+                "count": "0",
+                "hp": "75 50 wave * +",
+                "damage": "base 10 +",
+                "location": "random red"
             },
             {
                 "enemy": "leprachaun",
-                "count": "wave 4 /",
+                "count": "0",
                 "hp": "20 wave *",
                 "damage": "base 10 +",
-                "location": "random bone"
+                "location": "random"
+            },
+            {
+                "enemy": "skull",
+                "count": "wave 6 - 3 /",
+                "hp": "base 10 wave * +",
+                "location": "random red"
             }
         ]
    }

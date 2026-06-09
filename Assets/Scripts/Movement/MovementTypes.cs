@@ -18,9 +18,9 @@ public static class MovementTypes
 
     public static void Dash(Unit unit, Vector3 direction, int speed, ref int dashPhase, ref float dashTimer, ref Vector3 dashDirection)
     {
-        float triggerRange = 9f;
+        float triggerRange = 10f;
         float chargeTime = 1f;
-        float dashTime = 0.2f;
+        float dashTime = 0.8f;
         float recoveryTime = 0.6f;
 
         float dashSpeedMultiplier = 5f;
@@ -81,7 +81,7 @@ public static class MovementTypes
         unit.movement = move.normalized * speed;
     }
 
-   public static void Phase(Unit unit, Transform transform, SpriteRenderer renderer, Collider2D collider, ref bool isPhasing, ref float phaseTimer, ref Vector3 phaseDirection, float speed)
+    public static void Phase(Unit unit, Transform transform, SpriteRenderer renderer, Collider2D collider, EnemyController enemy, ref bool isPhasing, ref float phaseTimer, ref Vector3 phaseDirection, float speed)
     {
         float idleTime = 3f;
         float phaseTime = 0.8f;
@@ -90,11 +90,21 @@ public static class MovementTypes
         if (!isPhasing)
         {
             unit.movement = Vector3.zero;
+            if (!enemy.summonCheckedThisIdle)
+            {
+                enemy.summonCheckedThisIdle = true;
+
+                if (!string.IsNullOrEmpty(enemy.summonEnemy) && UnityEngine.Random.value < 0.25f)
+                {
+                    EnemySpawner.Instance.SpawnEnemyAtPosition(enemy.summonEnemy, transform.position);
+                }
+            }
             phaseTimer -= Time.deltaTime;
 
             if (phaseTimer <= 0f)
             {
                 isPhasing = true;
+                enemy.summonCheckedThisIdle = false;
                 phaseTimer = phaseTime;
                 phaseDirection = Random.insideUnitCircle.normalized;
 
