@@ -8,6 +8,10 @@ public class PlayerStatusEffects : MonoBehaviour
 
     private PlayerController player;
     private SpriteRenderer spriteRenderer;
+    private Color baseColor;
+
+    private int frozenOriginalSpeed;
+    private bool frozen;
 
     private void Awake()
     {
@@ -15,11 +19,14 @@ public class PlayerStatusEffects : MonoBehaviour
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
+        if (spriteRenderer != null)
+        {
+            baseColor = spriteRenderer.color;
+        }
     }
 
     public void ApplyBurn(float duration, int damagePerTick)
     {
-
         if (burnRoutine != null)
         {
             StopCoroutine(burnRoutine);
@@ -32,6 +39,10 @@ public class PlayerStatusEffects : MonoBehaviour
 
     public void ApplyFreeze(float duration, float slowAmount)
     {
+        if (!frozen)
+        {
+            frozenOriginalSpeed = player.speed;
+        }
 
         if (freezeRoutine != null)
         {
@@ -45,11 +56,8 @@ public class PlayerStatusEffects : MonoBehaviour
 
     private IEnumerator BurnRoutine(float duration, int damagePerTick)
     {
-        Color originalColor = Color.white;
-
         if (spriteRenderer != null)
         {
-            originalColor = spriteRenderer.color;
             spriteRenderer.color = Color.red;
         }
 
@@ -60,7 +68,8 @@ public class PlayerStatusEffects : MonoBehaviour
             player.hp.Damage(
                 new Damage(
                     damagePerTick,
-                    Damage.Type.FIRE
+                    Damage.Type.FIRE,
+                    gameObject
                 )
             );
 
@@ -71,7 +80,7 @@ public class PlayerStatusEffects : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = originalColor;
+            spriteRenderer.color = baseColor;
         }
 
         burnRoutine = null;
@@ -79,29 +88,27 @@ public class PlayerStatusEffects : MonoBehaviour
 
     private IEnumerator FreezeRoutine(float duration, float slowAmount)
     {
-        int originalSpeed = player.speed;
+        frozen = true;
 
         player.speed = Mathf.RoundToInt(
-            originalSpeed * (1f - slowAmount)
+            frozenOriginalSpeed * (1f - slowAmount)
         );
-
-        Color originalColor = Color.white;
 
         if (spriteRenderer != null)
         {
-            originalColor = spriteRenderer.color;
             spriteRenderer.color = Color.cyan;
         }
 
         yield return new WaitForSeconds(duration);
 
-        player.speed = originalSpeed;
+        player.speed = frozenOriginalSpeed;
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = originalColor;
+            spriteRenderer.color = baseColor;
         }
 
+        frozen = false;
         freezeRoutine = null;
     }
 }
