@@ -1,7 +1,7 @@
 [
    {
        "name": "zombie",
-       "sprite": 0,
+       "sprite": 26,
        "hp": 20,
        "speed": 5,
        "damage": 5
@@ -12,7 +12,8 @@
        "hp": 30,
        "speed": 7,
        "damage": 10,
-       "damageType": "ICE"
+       "damageType": "ICE",
+       "movement": "zigzag"
    },  
    {
        "name": "warlock",
@@ -21,17 +22,17 @@
        "speed": 7,
        "damage": 10,
        "scale": 1.3,
-       "damageType": "FIRE",
-       "movement": "circle"
+       "movement": "phase"
    },
    {
        "name": "wendigo",
        "sprite": 15,
-       "hp": 120,
+       "hp": 200,
        "speed": 4,
        "damage": 60,
        "scale": 2,
-       "damageType": "ICE"
+       "damageType": "ICE",
+       "movement": "scary"
    },
    {
        "name": "minotaur",
@@ -48,16 +49,25 @@
        "hp": 1,
        "speed": 10,
        "scale": 0.7,
-       "damage": 10,
-       "movement": "circle"
+       "damage": 10
    },
    {
        "name": "skull",
        "sprite": 3,
        "hp": 10,
        "speed": 8,
-       "damage": 5,
+       "damage": 10,
        "damageType": "FIRE",
        "movement": "circle"
+   },
+   {
+       "name": "pyromancer",
+       "sprite": 26,
+       "hp": 180,
+       "speed": 10,
+       "damage": 40,
+       "scale": 1.8,
+       "damageType": "FIRE",
+       "movement": "phase"
    }
 ]

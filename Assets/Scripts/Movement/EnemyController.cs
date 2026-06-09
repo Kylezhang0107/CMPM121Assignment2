@@ -9,6 +9,11 @@ public class EnemyController : MonoBehaviour
     public HealthBar healthui;
     public bool dead;
     public int attackDamage = 5;
+    private bool isPhasing = false;
+    private float phaseTimer = 0f;
+    private Vector3 phaseDirection;
+    private int scaryPhase = 0;
+    private float scaryTimer = 0f;
     private int dashPhase = 0;
     private float dashTimer = 0f;
     private Vector3 dashDirection;
@@ -45,6 +50,18 @@ public class EnemyController : MonoBehaviour
 
             case "dash":
                 MovementTypes.Dash(unit, direction, speed, ref dashPhase, ref dashTimer, ref dashDirection);
+                break;
+            
+            case "zigzag":
+                MovementTypes.ZigZag(unit, direction, speed);
+                break;
+
+            case "phase":
+                MovementTypes.Phase(unit, transform, GetComponent<SpriteRenderer>(), GetComponent<Collider2D>(), ref isPhasing, ref phaseTimer, ref phaseDirection, speed);
+                break;
+
+            case "scary":
+                MovementTypes.Scary(unit, direction, speed, transform, GameManager.Instance.player.transform, GetComponent<SpriteRenderer>(), ref scaryPhase, ref scaryTimer, ref phaseDirection, ref isPhasing);
                 break;
 
             default:
