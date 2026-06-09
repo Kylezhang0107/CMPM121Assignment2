@@ -220,7 +220,11 @@ public class EnemySpawner : MonoBehaviour
         // if exceeded number of waves, end the level
         if (currentLevel.waves > 0 && currentWave > currentLevel.waves)
         {
-            AudioManager.Instance.PlayWin();
+            if (!GameManager.Instance.winSoundPlayed)
+            {
+                AudioManager.Instance.PlayWin();
+                GameManager.Instance.winSoundPlayed = true;
+            }
 
             GameManager.Instance.playerWon = true;
             GameManager.Instance.state = GameManager.GameState.GAMEOVER;

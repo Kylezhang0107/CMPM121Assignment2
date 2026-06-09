@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class AudioManager : MonoBehaviour
 {
@@ -60,11 +61,29 @@ public class AudioManager : MonoBehaviour
 
     public void PlayWin()
     {
-        PlaySFX(winSound);
+        StartCoroutine(PlayPrioritySound(winSound));
     }
 
     public void PlayLose()
     {
-        PlaySFX(loseSound);
+        StartCoroutine(PlayPrioritySound(loseSound));
+    }
+
+    private IEnumerator PlayPrioritySound(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            yield break;
+        }
+
+        MusicManager.Instance.FadeOut(0.5f);
+
+        yield return new WaitForSeconds(0.5f);
+        
+        sfxSource.PlayOneShot(clip);
+
+        yield return new WaitForSeconds(clip.length);
+
+        MusicManager.Instance.FadeIn(0.5f);
     }
 }

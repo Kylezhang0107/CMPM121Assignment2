@@ -37,6 +37,10 @@ public class GameManager
     public PlayerSpriteManager playerSpriteManager;
     public RelicIconManager relicIconManager;
 
+    // audio
+    public bool winSoundPlayed = false;
+    public bool loseSoundPlayed = false;
+
     private List<GameObject> enemies;
     public int enemy_count { get { return enemies.Count; } }
 
