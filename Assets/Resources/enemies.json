@@ -55,7 +55,7 @@
        "name": "skull",
        "sprite": 3,
        "hp": 10,
-       "speed": 8.5,
+       "speed": 8,
        "damage": 5,
        "damageType": "FIRE",
        "movement": "circle"

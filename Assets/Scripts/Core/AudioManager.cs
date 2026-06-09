@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Unity.VisualScripting;
 
 public class AudioManager : MonoBehaviour
 {
@@ -17,6 +18,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip buttonClick;
     public AudioClip winSound;
     public AudioClip loseSound;
+
+    [Header("Player")]
+    public AudioClip playerHurt;
+    public AudioClip footsteps;
 
     private void Awake()
     {
@@ -57,6 +62,11 @@ public class AudioManager : MonoBehaviour
     public void PlayButtonClick()
     {
         PlaySFX(buttonClick);
+    }
+
+    public void PlayPlayerHurt()
+    {
+        PlaySFX(playerHurt);
     }
 
     public void PlayWin()

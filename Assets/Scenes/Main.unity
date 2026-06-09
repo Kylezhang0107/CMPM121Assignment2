@@ -4732,6 +4732,8 @@ MonoBehaviour:
   buttonClick: {fileID: 8300000, guid: 949acb5c345cb9147b7f2018eb54af1c, type: 3}
   winSound: {fileID: 8300000, guid: ca3779eeeef904c4fb964ce0f11ad302, type: 3}
   loseSound: {fileID: 8300000, guid: f405e04796b9f824891a2526c0063f81, type: 3}
+  playerHurt: {fileID: 8300000, guid: 56118ebf14be8074e95b34ad559d4e23, type: 3}
+  footsteps: {fileID: 8300000, guid: bd9553f1b4bf81541ab8ff4a94b295cb, type: 3}
 --- !u!4 &1432870801
 Transform:
   m_ObjectHideFlags: 0

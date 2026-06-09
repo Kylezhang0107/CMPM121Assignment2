@@ -84,6 +84,9 @@ public class PlayerController : MonoBehaviour
     private float stationaryTimer = 0f;
     private Vector3 previousPosition;
 
+    // footsteps
+    private AudioSource footstepSource;
+
     // active relic tracker
     private readonly List<RelicData> activeTemporaryRelics = new List<RelicData>();
 
@@ -104,6 +107,18 @@ public class PlayerController : MonoBehaviour
         EventBus.Instance.OnSpellCast += OnSpellCastEvent;
         EventBus.Instance.OnPlayerMove += OnPlayerMoveEvent;
         EventBus.Instance.OnWaveComplete += OnWaveCompleteEvent;
+
+        // footsteps
+        footstepSource = gameObject.AddComponent<AudioSource>();
+
+        footstepSource.clip = AudioManager.Instance.footsteps;
+        footstepSource.loop = true;
+        footstepSource.playOnAwake = false;
+        footstepSource.spatialBlend = 0f;
+        footstepSource.volume = 0.5f;
+        footstepSource.pitch = 1.0f;
+        footstepSource.Play();
+        footstepSource.Pause();
     }
 
     private void OnDestroy()
@@ -548,6 +563,9 @@ public class PlayerController : MonoBehaviour
         {
            // Debug.Log("Player hit by: " + damage.type);
 
+           // player hurt audio
+           AudioManager.Instance.PlayPlayerHurt();
+
             TriggerRelics(
                 "take-damage",
                 damage,
@@ -706,6 +724,28 @@ public class PlayerController : MonoBehaviour
         {
             float finalSpeed = speed * SkillTreeManager.Instance.GetMoveSpeedBonusMultiplier();
             unit.movement = moveInput * finalSpeed;
+
+            // footstep audio
+            float moveMagnitude = moveInput.magnitude;
+
+            if (moveMagnitude > 0.05f)
+            {
+                if (!footstepSource.isPlaying)
+                {
+                    footstepSource.UnPause();
+                }
+
+                float speedRatio = finalSpeed / 5f;
+
+                footstepSource.pitch = Mathf.Clamp(speedRatio, 0.8f, 1.8f);
+            }
+            else
+            {
+                if (footstepSource.isPlaying)
+                {
+                    footstepSource.Pause();
+                }
+            }
         }
 
         HandleStandStillRelics();
