@@ -540,7 +540,7 @@ public class PlayerController : MonoBehaviour
 
         if (target != null && target.owner == gameObject)
         {
-            Debug.Log("Player hit by: " + damage.type);
+           // Debug.Log("Player hit by: " + damage.type);
 
             TriggerRelics(
                 "take-damage",
@@ -551,7 +551,7 @@ public class PlayerController : MonoBehaviour
             PlayerStatusEffects effects =
                 GetComponent<PlayerStatusEffects>();
 
-             Debug.Log("Effects component found? " + (effects != null));
+            // Debug.Log("Effects component found? " + (effects != null));
 
             if (effects != null)
             {

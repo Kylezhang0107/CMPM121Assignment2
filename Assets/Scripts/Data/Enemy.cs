@@ -9,5 +9,6 @@ public class Enemy
     public int speed;
     public int damage;
 
+    public string movement = "chase";
     public string damageType = "PHYSICAL";
 }

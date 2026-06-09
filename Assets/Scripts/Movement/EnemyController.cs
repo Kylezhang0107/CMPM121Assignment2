@@ -9,6 +9,10 @@ public class EnemyController : MonoBehaviour
     public HealthBar healthui;
     public bool dead;
     public int attackDamage = 5;
+    private int dashPhase = 0;
+    private float dashTimer = 0f;
+    private Vector3 dashDirection;
+    public string movementType = "chase";
     public Damage.Type attackType = Damage.Type.PHYSICAL;
 
     public float last_attack;
@@ -24,16 +28,32 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         Vector3 direction = target.position - transform.position;
+
         if (direction.magnitude < 2f)
         {
             DoAttack();
+            return;
         }
-        else
+
+        Unit unit = GetComponent<Unit>();
+
+        switch (movementType.ToLower())
         {
-            GetComponent<Unit>().movement = direction.normalized * speed;
+            case "circle":
+                MovementTypes.Circle(unit, direction, speed);
+                break;
+
+            case "dash":
+                MovementTypes.Dash(unit, direction, speed, ref dashPhase, ref dashTimer, ref dashDirection);
+                break;
+
+            default:
+                MovementTypes.Chase(unit, direction, speed);
+                break;
         }
     }
-    
+
+            
     void DoAttack()
     {
         if (last_attack + 2 < Time.time)
