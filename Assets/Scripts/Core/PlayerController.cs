@@ -52,6 +52,7 @@ public class PlayerController : MonoBehaviour
         public string mana_regeneration;
         public string spellpower;
         public string speed;
+        public float scale = 1f;
     }
 
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -206,6 +207,11 @@ public class PlayerController : MonoBehaviour
             default:
                 Debug.LogWarning($"Unknown class: {className}");
                 break;
+        }
+
+        if (characterClasses.TryGetValue(className, out CharacterClassData classData))
+        {
+            transform.localScale = Vector3.one * classData.scale;
         }
     }
 

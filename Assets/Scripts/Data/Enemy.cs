@@ -8,6 +8,7 @@ public class Enemy
     public int hp;
     public int speed;
     public int damage;
+    public float scale = 1f;
 
     public string movement = "chase";
     public string damageType = "PHYSICAL";

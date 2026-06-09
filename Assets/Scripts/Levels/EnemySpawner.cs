@@ -309,6 +309,7 @@ public class EnemySpawner : MonoBehaviour
         Vector3 pos = spawn_point.transform.position + new Vector3(offset.x, offset.y, 0);
 
         GameObject new_enemy = Instantiate(enemy, pos, Quaternion.identity);
+        new_enemy.transform.localScale = Vector3.one * baseEnemy.scale;
 
         // evaluate stats using RPN
         int hp = RPNEvaluator.RPNEvaluator.Evaluate(
