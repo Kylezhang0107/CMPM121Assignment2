@@ -590,8 +590,8 @@ public class PlayerController : MonoBehaviour
 
                     case Damage.Type.ICE:
                         effects.ApplyFreeze(
-                            2f,  // duration
-                            0.25f // 50% slow
+                            2f,  
+                            0.40f 
                         );
                         break;
                 }
@@ -871,32 +871,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnAttack(InputValue value)
-    {
-        if (GameManager.Instance.state == GameManager.GameState.PREGAME || GameManager.Instance.state == GameManager.GameState.GAMEOVER) return;
-        Vector2 mouseScreen = Mouse.current.position.value;
-        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(mouseScreen);
-        mouseWorld.z = 0;
-        StartCoroutine(spellcaster.Cast(transform.position, mouseWorld));
-        EventBus.Instance.SpellCast(
-            spellcaster.ActiveSpell
-        );
-        // RemoveTemporaryRelics("cast-spell");
-    }
-
-    void OnMove(InputValue value)
-    {
-        if (GameManager.Instance.state == GameManager.GameState.PREGAME ||
-            GameManager.Instance.state == GameManager.GameState.GAMEOVER)
-        {
-            return;
-        }
-
-        moveInput = value.Get<Vector2>();
-
-        EventBus.Instance.PlayerMove(moveInput);
-    }
-
+    
     void Die()
     {
         if (!GameManager.Instance.loseSoundPlayed)

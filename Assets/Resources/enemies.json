@@ -28,9 +28,9 @@
    {
        "name": "wendigo",
        "sprite": 15,
-       "hp": 300,
+       "hp": 800,
        "speed": 7,
-       "damage": 60,
+       "damage": 40,
        "scale": 2,
        "damageType": "ICE",
        "movement": "scary"
@@ -38,10 +38,10 @@
    {
        "name": "minotaur",
        "sprite": 20,
-       "hp": 500,
+       "hp": 1000,
        "speed": 5,
        "scale": 2.4,
-       "damage": 80,
+       "damage": 50,
        "movement": "dash"
    },
    {
@@ -73,7 +73,7 @@
    {
        "name": "pyromancer",
        "sprite": 26,
-       "hp": 500,
+       "hp": 800,
        "speed": 10,
        "damage": 40,
        "scale": 1.8,

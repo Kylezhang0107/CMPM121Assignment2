@@ -33,9 +33,11 @@ public class ArcaneBlastSpell : Spell
     private void OnPrimaryHit(Hittable other, Vector3 impact, int splitCount, int splitDamage)
     {
         if (other.team != team)
-        {
-            other.Damage(new Damage(GetDamage(), SkillTreeManager.Instance.GetDamageType()));
-        }
+    {
+        Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
+        ApplyElementalEffect(other, damageType);
+        other.Damage(new Damage(GetDamage(), damageType, GameManager.Instance.player));
+    }
 
         float angleStep = 360f / splitCount;
         for (int i = 0; i < splitCount; i++)
@@ -58,7 +60,9 @@ public class ArcaneBlastSpell : Spell
     {
         if (other.team != team)
         {
-            other.Damage(new Damage(splitDamage, SkillTreeManager.Instance.GetDamageType()));
+            Damage.Type damageType = SkillTreeManager.Instance.GetDamageType();
+            ApplyElementalEffect(other, damageType);
+            other.Damage(new Damage(splitDamage, damageType, GameManager.Instance.player));
         }
     }
 }
