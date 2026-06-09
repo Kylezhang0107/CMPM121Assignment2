@@ -132,7 +132,7 @@ public class SkillTreeManager
 
     public float GetFreezeSlowAmount()
     {
-        return 0.20f + (freezePotencyLevels * 0.10f);
+        return 0.30f + (freezePotencyLevels * 0.10f);
     }
 
     public int GetManaBonus()

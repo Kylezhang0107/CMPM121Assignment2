@@ -20,6 +20,7 @@ public class EnemyController : MonoBehaviour
     public string movementType = "chase";
     public string summonEnemy;
     public bool summonCheckedThisIdle;
+    public string enemyType;
     public Damage.Type attackType = Damage.Type.PHYSICAL;
 
     public float last_attack;
@@ -89,6 +90,10 @@ public class EnemyController : MonoBehaviour
         if (!dead)
         {
             dead = true;
+            if (enemyType == "leprachaun")
+            {
+                SkillTreeManager.Instance.AddSkillPoint();
+            }
             GameManager.Instance.RemoveEnemy(gameObject);
             Destroy(gameObject);
         }

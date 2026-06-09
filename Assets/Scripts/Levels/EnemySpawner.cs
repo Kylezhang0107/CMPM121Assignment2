@@ -367,6 +367,7 @@ public class EnemySpawner : MonoBehaviour
         en.attackDamage = damage;
         en.attackType = System.Enum.TryParse<Damage.Type>(baseEnemy.damageType, true, out Damage.Type parsedType) ? parsedType: Damage.Type.PHYSICAL;
         en.movementType = baseEnemy.movement;
+        en.enemyType = baseEnemy.name;
         en.summonEnemy = baseEnemy.summon;
 
         GameManager.Instance.AddEnemy(new_enemy);
@@ -401,6 +402,7 @@ public class EnemySpawner : MonoBehaviour
         en.attackType = System.Enum.TryParse<Damage.Type>(baseEnemy.damageType, true, out Damage.Type parsedType) ? parsedType : Damage.Type.PHYSICAL;
 
         en.movementType = baseEnemy.movement;
+        en.enemyType = baseEnemy.name;
         en.summonEnemy = baseEnemy.summon;
 
         GameManager.Instance.AddEnemy(new_enemy);
