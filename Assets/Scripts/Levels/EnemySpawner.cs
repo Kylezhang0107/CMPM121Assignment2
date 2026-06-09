@@ -85,7 +85,7 @@ public class EnemySpawner : MonoBehaviour
         StopAllCoroutines();
 
         // clear remaining enemies
-        foreach (GameObject e in GameObject.FindGameObjectsWithTag("Enemy"))
+        foreach (GameObject e in GameObject.FindGameObjectsWithTag("Enemy")) // Alyssa: "Enemy" invalid, find correct object tag
             Destroy(e);
 
         // reset game state
