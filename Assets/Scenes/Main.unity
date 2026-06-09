@@ -5849,6 +5849,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4ef5265fce1b544c872205988919fb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 232596022}
+  mageSprite: {fileID: 325875113, guid: e0ba5a7a2ca92e643ad58fc85d241001, type: 3}
+  warlockSprite: {fileID: -1076823734, guid: e0ba5a7a2ca92e643ad58fc85d241001, type: 3}
+  battlemageSprite: {fileID: -844905941, guid: e0ba5a7a2ca92e643ad58fc85d241001, type: 3}
   healthui: {fileID: 765025204}
   manaui: {fileID: 71109453}
   spellui: {fileID: 2085212185}

@@ -54,6 +54,11 @@ public class PlayerController : MonoBehaviour
         public string speed;
     }
 
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Sprite mageSprite;
+    [SerializeField] private Sprite warlockSprite;
+    [SerializeField] private Sprite battlemageSprite;
+
     public Hittable hp;
     public HealthBar healthui;
     public ManaBar manaui;
@@ -183,6 +188,25 @@ public class PlayerController : MonoBehaviour
         }
 
         selectedCharacterClass = className;
+
+        switch (className.ToLower())
+        {
+            case "mage":
+                spriteRenderer.sprite = mageSprite;
+                break;
+
+            case "warlock":
+                spriteRenderer.sprite = warlockSprite;
+                break;
+
+            case "battlemage":
+                spriteRenderer.sprite = battlemageSprite;
+                break;
+
+            default:
+                Debug.LogWarning($"Unknown class: {className}");
+                break;
+        }
     }
 
     private int EvaluateClassStat(string expression, int wave, int fallback)
