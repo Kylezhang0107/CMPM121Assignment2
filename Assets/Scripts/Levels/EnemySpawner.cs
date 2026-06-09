@@ -14,6 +14,7 @@ public class EnemySpawner : MonoBehaviour
     public Image level_selector;
     public GameObject button;
     public GameObject enemy;
+    public GameObject enemyLightPrefab;
     public SpawnPoint[] SpawnPoints;
 
     // adding level storage
@@ -310,6 +311,12 @@ public class EnemySpawner : MonoBehaviour
 
         GameObject new_enemy = Instantiate(enemy, pos, Quaternion.identity);
         new_enemy.transform.localScale = Vector3.one * baseEnemy.scale;
+        if (baseEnemy.light)
+            {
+                GameObject light = Instantiate(enemyLightPrefab, new_enemy.transform);
+
+                light.transform.localPosition = Vector3.zero;
+            }
 
         // evaluate stats using RPN
         int hp = RPNEvaluator.RPNEvaluator.Evaluate(

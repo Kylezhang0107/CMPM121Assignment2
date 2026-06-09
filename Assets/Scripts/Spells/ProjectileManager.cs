@@ -4,11 +4,13 @@ using System;
 public class ProjectileManager : MonoBehaviour
 {
     public GameObject[] projectiles;
+    public GameObject spellLightPrefab;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameManager.Instance.projectileManager = this;
+        spellLightPrefab = Resources.Load<GameObject>("SpellLight");
     }
 
     // Update is called once per frame
@@ -21,6 +23,16 @@ public class ProjectileManager : MonoBehaviour
     {
         GameObject new_projectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f, Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
         ProjectileController controller = new_projectile.GetComponent<ProjectileController>();
+
+        if (spellLightPrefab != null)
+        {
+            Debug.Log("Creating spell light");
+            Instantiate(spellLightPrefab, new_projectile.transform);
+        }
+        else
+        {
+            Debug.LogError("spellLightPrefab is NULL");
+        }
 
         if (tint.HasValue)
         {
@@ -42,6 +54,16 @@ public class ProjectileManager : MonoBehaviour
     {
         GameObject new_projectile = Instantiate(projectiles[which], where + direction.normalized * 1.1f, Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg));
         ProjectileController controller = new_projectile.GetComponent<ProjectileController>();
+
+        if (spellLightPrefab != null)
+        {
+            Debug.Log("Creating spell light");
+            Instantiate(spellLightPrefab, new_projectile.transform);
+        }
+        else
+        {
+            Debug.LogError("spellLightPrefab is NULL");
+        }
 
         if (tint.HasValue)
         {

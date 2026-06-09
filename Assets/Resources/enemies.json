@@ -1,7 +1,7 @@
 [
    {
        "name": "zombie",
-       "sprite": 26,
+       "sprite": 0,
        "hp": 20,
        "speed": 5,
        "damage": 5
@@ -27,7 +27,7 @@
    {
        "name": "wendigo",
        "sprite": 15,
-       "hp": 200,
+       "hp": 150,
        "speed": 4,
        "damage": 60,
        "scale": 2,
@@ -58,7 +58,8 @@
        "speed": 8,
        "damage": 10,
        "damageType": "FIRE",
-       "movement": "circle"
+       "movement": "circle",
+       "light": true
    },
    {
        "name": "pyromancer",
