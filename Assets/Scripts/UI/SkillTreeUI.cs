@@ -114,9 +114,9 @@ public class SkillTreeUI : MonoBehaviour
     private TextMeshProUGUI pathText;
     private TextMeshProUGUI hintText;
 
-    private readonly Color arcaneColor = new Color(0.46f, 0.36f, 0.74f, 1f);
-    private readonly Color iceColor = new Color(0.2f, 0.5f, 0.86f, 1f);
-    private readonly Color fireColor = new Color(0.82f, 0.28f, 0.2f, 1f);
+    private readonly Color arcaneColor = new Color(0.28f, 0.86f, 0.28f, 1f);
+    private readonly Color iceColor = new Color(0.28f, 0.28f, 0.86f, 1f);
+    private readonly Color fireColor = new Color(0.82f, 0.28f, 0.28f, 1f);
     private readonly Color disabledNodeColor = new Color(0.22f, 0.23f, 0.28f, 1f);
     private readonly Color dimWhite = new Color(0.48f, 0.48f, 0.48f, 1f);
 
@@ -405,7 +405,7 @@ public class SkillTreeUI : MonoBehaviour
             TextAlignmentOptions.Center,
             string.Empty,
             FontStyles.Bold,
-            new Color(0.95f, 0.91f, 0.74f, 1f)
+            new Color(0.55f, 0.71f, 0.34f, 1f)
         );
 
         pathText = CreateText(
@@ -425,11 +425,11 @@ public class SkillTreeUI : MonoBehaviour
             cardObj.transform,
             new Vector2(0f, -126f),
             new Vector2(860f, 40f),
-            19f,
+            30f,
             TextAlignmentOptions.Center,
             string.Empty,
             FontStyles.Normal,
-            new Color(0.85f, 0.88f, 0.96f, 1f)
+            new Color(0.35f, 0.35f, 0.96f, 1f)
         );
 
         BuildNodesAndConnectors(cardObj.transform);
