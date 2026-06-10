@@ -88,8 +88,8 @@ public class EnemySpawner : MonoBehaviour
         StopAllCoroutines();
 
         // clear remaining enemies
-        foreach (GameObject e in GameObject.FindGameObjectsWithTag("Enemy")) // Alyssa: "Enemy" invalid, find correct object tag
-            Destroy(e);
+        foreach (GameObject e in GameObject.FindGameObjectsWithTag("unit")) // Alyssa: Fixed, "Enemy" -> "unit" which is a valid Unity tag
+            Destroy(e); // Alyssa: Also put the player sprite under the "Player" tag in Unity so you don't get deleted
 
         // reset game state
         GameManager.Instance.state = GameManager.GameState.PREGAME;
