@@ -102,8 +102,13 @@ public class SkillTreeUI : MonoBehaviour
 
     private Canvas skillTreeCanvas;
     private Button openButton;
+    private Image openButtonImage;
+    private Outline openButtonGlow;
+    private TextMeshProUGUI openButtonLabel;
     private GameObject panelOverlay;
     private bool uiBuilt;
+    private float openButtonBlinkTimer;
+    private Color openButtonBaseColor = Color.white;
     private readonly List<RuntimeSkillNode> runtimeNodes = new List<RuntimeSkillNode>();
     private TextMeshProUGUI skillPointsText;
     private TextMeshProUGUI pathText;
@@ -113,6 +118,7 @@ public class SkillTreeUI : MonoBehaviour
     private readonly Color iceColor = new Color(0.2f, 0.5f, 0.86f, 1f);
     private readonly Color fireColor = new Color(0.82f, 0.28f, 0.2f, 1f);
     private readonly Color disabledNodeColor = new Color(0.22f, 0.23f, 0.28f, 1f);
+    private readonly Color dimWhite = new Color(0.48f, 0.48f, 0.48f, 1f);
 
     private Sprite cachedButtonSkin;
     private Sprite cachedPanelSkin;
@@ -197,6 +203,8 @@ public class SkillTreeUI : MonoBehaviour
             openButton.gameObject.SetActive(shouldShowButton);
         }
 
+        UpdateOpenButtonBlink(shouldShowButton);
+
         if (!shouldShowButton && panelOverlay != null && panelOverlay.activeSelf)
         {
             panelOverlay.SetActive(false);
@@ -255,6 +263,13 @@ public class SkillTreeUI : MonoBehaviour
 
         Image image = buttonObj.AddComponent<Image>();
         ApplySkin(image, defaults.buttonSkinName, ref cachedButtonSkin, ref loggedMissingButtonSkin, defaults.fallbackButtonColor, Image.Type.Sliced);
+        openButtonImage = image;
+        openButtonBaseColor = image.color;
+
+        openButtonGlow = buttonObj.AddComponent<Outline>();
+        openButtonGlow.effectColor = new Color(1f, 1f, 1f, 0f);
+        openButtonGlow.effectDistance = new Vector2(2f, 2f);
+        openButtonGlow.useGraphicAlpha = false;
 
         openButton = buttonObj.AddComponent<Button>();
 
@@ -269,10 +284,69 @@ public class SkillTreeUI : MonoBehaviour
             FontStyles.Bold,
             defaults.openButtonTextColor
         );
+        openButtonLabel = label;
         StretchToParent(label.rectTransform, new Vector2(6f, 6f), new Vector2(-6f, -6f));
 
         openButton.onClick.AddListener(OpenPanel);
         openButton.gameObject.SetActive(false);
+    }
+
+    private void UpdateOpenButtonBlink(bool shouldShowButton)
+    {
+        if (openButtonImage == null)
+        {
+            return;
+        }
+
+        bool shouldBlink = shouldShowButton && SkillTreeManager.Instance.skillPoints > 0;
+        if (!shouldBlink)
+        {
+            openButtonBlinkTimer = 0f;
+            openButtonImage.color = openButtonBaseColor;
+            openButtonImage.transform.localScale = Vector3.one;
+            if (openButtonGlow != null)
+            {
+                openButtonGlow.effectColor = new Color(1f, 1f, 1f, 0f);
+                openButtonGlow.effectDistance = new Vector2(2f, 2f);
+            }
+            if (openButtonLabel != null)
+            {
+                openButtonLabel.color = defaults.openButtonTextColor;
+            }
+            return;
+        }
+
+        openButtonBlinkTimer += Time.unscaledDeltaTime * 7f;
+        float pulse = (Mathf.Sin(openButtonBlinkTimer) + 1f) * 0.5f;
+
+        Color from = IsNearlyWhite(openButtonBaseColor) ? dimWhite : openButtonBaseColor;
+        Color to = new Color(1f, 1f, 1f, from.a);
+        openButtonImage.color = Color.Lerp(from, to, pulse);
+        float scalePulse = Mathf.Lerp(1f, 1.12f, pulse);
+        openButtonImage.transform.localScale = new Vector3(scalePulse, scalePulse, 1f);
+
+        if (openButtonGlow != null)
+        {
+            float glowAlpha = Mathf.Lerp(0.15f, 0.85f, pulse);
+            float glowSpread = Mathf.Lerp(2f, 6f, pulse);
+            openButtonGlow.effectColor = new Color(1f, 1f, 1f, glowAlpha);
+            openButtonGlow.effectDistance = new Vector2(glowSpread, glowSpread);
+        }
+
+        if (openButtonLabel != null)
+        {
+            Color labelFrom = IsNearlyWhite(defaults.openButtonTextColor) ? dimWhite : defaults.openButtonTextColor;
+            Color labelTo = Color.white;
+            openButtonLabel.color = Color.Lerp(labelFrom, labelTo, pulse);
+        }
+    }
+
+    private bool IsNearlyWhite(Color color)
+    {
+        const float threshold = 0.03f;
+        return Mathf.Abs(color.r - 1f) < threshold &&
+               Mathf.Abs(color.g - 1f) < threshold &&
+               Mathf.Abs(color.b - 1f) < threshold;
     }
 
     private void BuildPanel(Transform parent)
