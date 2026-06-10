@@ -871,6 +871,45 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OnAttack(InputValue value)
+    {
+        if (GameManager.Instance.state == GameManager.GameState.PREGAME ||
+            GameManager.Instance.state == GameManager.GameState.GAMEOVER)
+        {
+            return;
+        }
+
+        if (spellcaster == null || value == null || !value.isPressed)
+        {
+            return;
+        }
+
+        if (Mouse.current == null || Camera.main == null)
+        {
+            return;
+        }
+
+        Vector2 mouseScreen = Mouse.current.position.value;
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(mouseScreen);
+        mouseWorld.z = 0f;
+
+        StartCoroutine(spellcaster.Cast(transform.position, mouseWorld));
+        EventBus.Instance.SpellCast(spellcaster.ActiveSpell);
+    }
+
+    void OnMove(InputValue value)
+    {
+        if (GameManager.Instance.state == GameManager.GameState.PREGAME ||
+            GameManager.Instance.state == GameManager.GameState.GAMEOVER)
+        {
+            moveInput = Vector2.zero;
+            return;
+        }
+
+        moveInput = value.Get<Vector2>();
+        EventBus.Instance.PlayerMove(moveInput);
+    }
+
     
     void Die()
     {
