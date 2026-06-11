@@ -18,12 +18,16 @@ public class EnemySpawner : MonoBehaviour
     public GameObject enemyLightPrefab;
     public SpawnPoint[] SpawnPoints;
 
+    // tracks player starting position
+    private Vector3 startingPlayerPosition;
+
     // adding level storage
     private List<Level> levels;
     private readonly List<string> characterClasses = new List<string>();
     private Level currentLevel;
     private int currentWave = 1;    
     private string selectedCharacterClass;
+
 
     // tracks spawn count
     private int activeSpawnCoroutines = 0;
@@ -69,6 +73,10 @@ public class EnemySpawner : MonoBehaviour
         currentWave = 1;
 
         PlayerController playerController = GameManager.Instance.player.GetComponent<PlayerController>();
+
+        // save spawn position
+        startingPlayerPosition = GameManager.Instance.player.transform.position;
+
         playerController.SetCharacterClass(selectedCharacterClass);
 
         level_selector.gameObject.SetActive(false);
@@ -90,21 +98,51 @@ public class EnemySpawner : MonoBehaviour
     {
         AudioManager.Instance.PlayButtonClick();
 
+        GameManager.Instance.winSoundPlayed = false;
+        GameManager.Instance.loseSoundPlayed = false;
+
         StopAllCoroutines();
 
         // clear remaining enemies
         foreach (GameObject e in GameObject.FindGameObjectsWithTag("unit")) // Alyssa: Fixed, "Enemy" -> "unit" which is a valid Unity tag
             Destroy(e); // Alyssa: Also put the player sprite under the "Player" tag in Unity so you don't get deleted
 
+        
+        GameManager.Instance.ClearEnemies();
+        PlayerController playerController = GameManager.Instance.player.GetComponent<PlayerController>();
+
         // reset game state
         GameManager.Instance.state = GameManager.GameState.PREGAME;
         GameManager.Instance.playerWon = false;
         GameManager.Instance.currentWave = 0;
         GameManager.Instance.activeWave = 0;
+        GameManager.Instance.waveEnemiesKilled = 0;
+
 
         currentWave = 1;
         currentLevel = null;
         selectedCharacterClass = null;
+
+        // reset player position
+        if (GameManager.Instance.player != null)
+        {
+            GameManager.Instance.player.transform.position = startingPlayerPosition;
+        }
+        
+        playerController.ResetRunProgress();
+
+        playerController.ApplyWaveScaling(1);
+        
+        if (playerController.spellcaster != null)
+        {
+            playerController.spellcaster.ResetToStarterSpell();
+
+            playerController.spellcaster.mana = playerController.spellcaster.max_mana;
+        }
+
+        playerController.hp.hp = playerController.hp.max_hp;
+
+        playerController.healthui.SetHealth(playerController.hp);
 
         // show the level selector
         level_selector.gameObject.SetActive(true);

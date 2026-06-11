@@ -717,6 +717,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void ResetRunProgress()
+    {
+        relicBonusSpellPower = 0;
+
+        grantedRelics.Clear();
+        ownedRelicNames.Clear();
+        activeTemporaryRelics.Clear();
+
+        if (spellcaster != null)
+        {
+            spellcaster.pendingSpell = null;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {

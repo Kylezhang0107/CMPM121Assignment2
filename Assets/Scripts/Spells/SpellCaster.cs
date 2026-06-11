@@ -213,6 +213,21 @@ public class SpellCaster
         }
     }
 
+    public void ResetToStarterSpell()
+    {
+        spells.Clear();
+
+        Spell starter = new SpellBuilder().BuildSpecific(this, "arcane_bolt", spellPower, 1);
+
+        starter.lastProgressionPower = spellPower;
+
+        spells.Add(starter);
+
+        activeSpellIndex = 0;
+        
+        pendingSpell = null;
+    }
+
     public virtual IEnumerator Cast(Vector3 where, Vector3 target)
     {
         Spell spell = ActiveSpell;

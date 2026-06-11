@@ -58,6 +58,11 @@ public class GameManager
         waveEnemiesKilled++;
     }
 
+    public void ClearEnemies()
+    {
+        enemies.Clear();
+    }
+
     public GameObject GetClosestEnemy(Vector3 point)
     {
         if (enemies == null || enemies.Count == 0) return null;
