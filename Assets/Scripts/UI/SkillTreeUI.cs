@@ -114,7 +114,7 @@ public class SkillTreeUI : MonoBehaviour
     private TextMeshProUGUI pathText;
     private TextMeshProUGUI hintText;
 
-    private readonly Color arcaneColor = new Color(0.28f, 0.86f, 0.28f, 1f);
+    private readonly Color arcaneColor = new Color(0.60f, 0.28f, 0.60f, 1f);
     private readonly Color iceColor = new Color(0.28f, 0.28f, 0.86f, 1f);
     private readonly Color fireColor = new Color(0.82f, 0.28f, 0.28f, 1f);
     private readonly Color disabledNodeColor = new Color(0.22f, 0.23f, 0.28f, 1f);
