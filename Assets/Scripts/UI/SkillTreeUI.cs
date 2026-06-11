@@ -633,7 +633,7 @@ public class SkillTreeUI : MonoBehaviour
         if (hintText != null)
         {
             hintText.text = manager.pathChosen
-                ? "Spend 1 point per upgrade. I / O / P hotkeys still work for quick testing."
+                ? "Each upgrade costs 1 skill point. Earn points by surviving every 2 waves or by killing leprechauns."
                 : "Choose one magic path first (cost: 1 point).";
         }
 
