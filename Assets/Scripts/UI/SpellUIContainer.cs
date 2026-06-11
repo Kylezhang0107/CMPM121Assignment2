@@ -44,6 +44,8 @@ public class SpellUIContainer : MonoBehaviour
 
     public void OnDropButtonPressed(int slotIndex)
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (caster == null)
         {
             return;

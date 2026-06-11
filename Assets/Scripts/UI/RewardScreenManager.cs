@@ -526,8 +526,6 @@ public class RewardScreenManager : MonoBehaviour
 
     public void OnDeclineSpell()
     {
-        AudioManager.Instance.PlayButtonClick();
-
         if (GameManager.Instance.player == null)
         {
             return;

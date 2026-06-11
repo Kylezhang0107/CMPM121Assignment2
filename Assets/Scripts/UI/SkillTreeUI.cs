@@ -530,6 +530,8 @@ public class SkillTreeUI : MonoBehaviour
 
     private void HandleNodeSelected(int nodeIndex)
     {
+        AudioManager.Instance.PlayButtonClick();
+
         SkillTreeManager manager = SkillTreeManager.Instance;
         bool success = false;
 
@@ -873,6 +875,8 @@ public class SkillTreeUI : MonoBehaviour
 
     private void OpenPanel()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (panelOverlay != null)
         {
             RefreshSkillNodes();
@@ -882,6 +886,8 @@ public class SkillTreeUI : MonoBehaviour
 
     private void ClosePanel()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (panelOverlay != null)
         {
             panelOverlay.SetActive(false);

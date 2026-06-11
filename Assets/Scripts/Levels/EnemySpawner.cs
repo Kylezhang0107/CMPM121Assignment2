@@ -80,11 +80,16 @@ public class EnemySpawner : MonoBehaviour
 
     public void NextWave()
     {
+        Debug.Log("Next Wave Button Pressed");
+        AudioManager.Instance.PlayButtonClick();
+
         StartCoroutine(SpawnWave());
     }
 
     public void ReturnToMenu()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         StopAllCoroutines();
 
         // clear remaining enemies

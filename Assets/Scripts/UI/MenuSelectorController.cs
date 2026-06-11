@@ -43,6 +43,8 @@ public class MenuSelectorController : MonoBehaviour
 
     public void StartLevel()
     {
+        AudioManager.Instance.PlayButtonClick();
+
         if (selectorType == SelectorType.CharacterClass)
         {
             spawner.SelectCharacterClass(characterClass);
